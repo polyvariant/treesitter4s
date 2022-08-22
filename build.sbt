@@ -32,15 +32,25 @@ val commonSettings = Seq(
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
 )
 
-lazy val core = project.settings(
-  commonSettings
-)
+lazy val core = crossProject(JVMPlatform, JSPlatform)
+  .crossType(CrossType.Pure)
+  .settings(
+    commonSettings
+  )
 
-lazy val root = project
-  .in(file("."))
-  .aggregate(core)
+lazy val bindings = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "net.java.dev.jna" % "jna" % "5.12.1"
+    ),
+  )
+  .dependsOn(core)
+
+lazy val root = tlCrossRootProject
+  .aggregate(core, bindings)
   .settings(
     Compile / doc / sources := Seq(),
     sonatypeProfileName := "org.polyvariant",
   )
-  .enablePlugins(NoPublishPlugin)
