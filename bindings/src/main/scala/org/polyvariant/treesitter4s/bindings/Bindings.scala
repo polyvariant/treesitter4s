@@ -20,16 +20,21 @@ import com.sun.jna.Native
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.facade.Facade
 import cats.effect.kernel.Sync
+import org.polyvariant.treesitter4s.Language
 
 object Bindings {
 
   private val libName = {
     val os = System.getProperty("os.name")
 
+    // if (os.toLowerCase().contains("mac"))
+    //   "/treesitter.dylib"
+    // else if (os.toLowerCase().contains("linux"))
+    //   "/treesitter.so"
     if (os.toLowerCase().contains("mac"))
-      "/treesitter.dylib"
+      "/libtree-sitter.dylib"
     else if (os.toLowerCase().contains("linux"))
-      "/treesitter.so"
+      "/libtree-sitter.so"
     else
       sys.error(s"Unsupported system: $os")
   }
@@ -41,5 +46,32 @@ object Bindings {
     )
 
   def make[F[_]: Sync](): TreeSitter[F] = Facade.make[F](LIBRARY)
+
+}
+
+object LanguageBindings {
+
+  private val libName = {
+    val os = System.getProperty("os.name")
+
+    // if (os.toLowerCase().contains("mac"))
+    //   "/treesitter.dylib"
+    // else if (os.toLowerCase().contains("linux"))
+    //   "/treesitter.so"
+    if (os.toLowerCase().contains("mac"))
+      "/tree-sitter-scala.dylib"
+    else if (os.toLowerCase().contains("linux"))
+      "/tree-sitter-scala.so"
+    else
+      sys.error(s"Unsupported system: $os")
+  }
+
+  private val LIBRARY: TreeSitterScala = Native
+    .load[TreeSitterScala](
+      Native.extractFromResourcePath(libName).toString(),
+      classOf[TreeSitterScala],
+    )
+
+  def scala: Long = LIBRARY.tree_sitter_scala()
 
 }

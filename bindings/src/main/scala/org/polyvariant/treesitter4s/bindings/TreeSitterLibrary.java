@@ -23,7 +23,7 @@ import com.sun.jna.Structure.FieldOrder;
 public interface TreeSitterLibrary extends Library {
 
 	// todo: extensible for languages
-	long tree_sitter_scala();
+	// long tree_sitter_scala();
 
 	@FieldOrder({ "context0", "context1", "context2", "context3", "id", "tree" })
 	public static class Node extends Structure {

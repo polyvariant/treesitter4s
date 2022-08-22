@@ -34,13 +34,14 @@ private[bindings] object Facade {
 
       def parse(
         source: String,
-        language: treesitter4s.Language,
+        language: Long,
         encoding: treesitter4s.Encoding,
       ): Resource[F, Tree] = {
 
         val alloc: F[Pointer] = Sync[F].delay {
           val parserPointer = ts.ts_parser_new()
-          ts.ts_parser_set_language(parserPointer, toNative.language(ts, language))
+          ts.ts_parser_set_language(parserPointer, language)
+          // ts.ts_parser_set_language(parserPointer, toNative.language(ts, language))
 
           ts.ts_parser_parse_string_encoding(
             parserPointer,
@@ -72,7 +73,7 @@ private[bindings] object Facade {
 
     def language(ts: TreeSitterLibrary, lang: treesitter4s.Language): Long =
       lang match {
-        case Scala => ts.tree_sitter_scala()
+        case Scala => ??? // ts.tree_sitter_scala()
       }
 
     def encoding(enc: treesitter4s.Encoding): Int =

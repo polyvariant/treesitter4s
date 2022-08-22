@@ -5,4 +5,4 @@
 .bsp/
 
 node_modules/
-# only on the top level
+result

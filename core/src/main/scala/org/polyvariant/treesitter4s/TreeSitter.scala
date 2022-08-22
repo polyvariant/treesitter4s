@@ -22,7 +22,8 @@ trait TreeSitter[F[_]] {
 
   def parse(
     source: String,
-    language: Language,
+    language: Long,
+    // language: Language,
     encoding: Encoding,
   ): Resource[F, Tree]
 
