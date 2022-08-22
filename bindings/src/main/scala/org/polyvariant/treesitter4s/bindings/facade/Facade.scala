@@ -98,7 +98,7 @@ private[bindings] object Facade {
         def getChild(i: Int): Option[treesitter4s.Node] =
           if (i >= 0 && i < childCount)
             // Not checking for nulls, given we're in the right index range
-            Some(node(ts, ts.ts_node_child(underlying, i)))
+            Some(node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i))))
           else
             None
 

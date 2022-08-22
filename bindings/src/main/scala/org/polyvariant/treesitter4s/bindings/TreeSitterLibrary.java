@@ -51,7 +51,7 @@ public interface TreeSitterLibrary extends Library {
 
 	Uint32_t ts_node_child_count(Node node);
 
-	Node.ByValue ts_node_child(Node node, int index);
+	Node.ByValue ts_node_child(Node node, Uint32_t index);
 
 	boolean ts_node_is_null(Node node);
 
