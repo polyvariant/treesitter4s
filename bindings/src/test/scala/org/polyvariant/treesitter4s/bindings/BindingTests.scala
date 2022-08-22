@@ -26,26 +26,26 @@ import weaver._
 object BindingTests extends SimpleIOSuite {
   val ts = Bindings.make[IO]()
 
-  def parseExample(s: String) = ts.parse(s, Language.SmithyQL, Encoding.UTF8)
+  def parseExample(s: String) = ts.parse(s, Language.Scala, Encoding.UTF8)
 
   test("root node child count") {
 
-    parseExample("Hello {}").use { tree =>
+    parseExample("class Hello {}").use { tree =>
       val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.childCount), Some(3)).pure[IO]
+      assert.eql(rootNode.map(_.childCount), Some(1)).pure[IO]
     }
   }
 
   test("root node child by index (in range)") {
-    parseExample("Hello {}").use { tree =>
+    parseExample("class Hello {}").use { tree =>
       val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
       assert.eql(rootNode.getChild(0).isDefined, true).pure[IO]
     }
   }
   test("root node child by index (out of range)") {
-    parseExample("Hello {}").use { tree =>
+    parseExample("class Hello {}").use { tree =>
       val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
       assert.eql(rootNode.getChild(-1).isDefined, false).pure[IO]
@@ -53,11 +53,11 @@ object BindingTests extends SimpleIOSuite {
   }
 
   test("root node string") {
-    parseExample("Hello {}").use { tree =>
+    parseExample("class Hello {}").use { tree =>
       val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
       val expected =
-        "(source_file operation_name: (operation_name name: (identifier)) (whitespace) input: (struct))"
+        "(compilation_unit (class_definition name: (identifier) body: (template_body)))"
 
       assert
         .eql(rootNode.getString, expected)

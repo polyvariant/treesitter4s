@@ -39,7 +39,7 @@ object Encoding {
 sealed trait Language extends Product with Serializable
 
 object Language {
-  case object SmithyQL extends Language
+  case object Scala extends Language
 }
 
 trait Tree {

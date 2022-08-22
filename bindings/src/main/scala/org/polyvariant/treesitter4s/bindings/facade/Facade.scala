@@ -19,7 +19,7 @@ package org.polyvariant.treesitter4s.bindings.facade
 import org.polyvariant.treesitter4s
 import org.polyvariant.treesitter4s.Encoding.UTF16
 import org.polyvariant.treesitter4s.Encoding.UTF8
-import org.polyvariant.treesitter4s.Language.SmithyQL
+import org.polyvariant.treesitter4s.Language.Scala
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
@@ -72,7 +72,7 @@ private[bindings] object Facade {
 
     def language(ts: TreeSitterLibrary, lang: treesitter4s.Language): Long =
       lang match {
-        case SmithyQL => ts.tree_sitter_smithyql()
+        case Scala => ts.tree_sitter_scala()
       }
 
     def encoding(enc: treesitter4s.Encoding): Int =

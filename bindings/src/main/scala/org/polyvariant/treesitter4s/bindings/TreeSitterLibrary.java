@@ -19,7 +19,11 @@ package org.polyvariant.treesitter4s.bindings;
 import com.sun.jna.*;
 import com.sun.jna.Structure.FieldOrder;
 
+// todo: this could be a separate library (independent of Scala versions)
 public interface TreeSitterLibrary extends Library {
+
+	// todo: extensible for languages
+	long tree_sitter_scala();
 
 	@FieldOrder({ "context0", "context1", "context2", "context3", "id", "tree" })
 	public static class Node extends Structure {
@@ -33,8 +37,6 @@ public interface TreeSitterLibrary extends Library {
 		public static class ByValue extends Node implements Structure.ByValue {
 		}
 	}
-
-	long tree_sitter_smithyql();
 
 	Pointer ts_parser_new();
 

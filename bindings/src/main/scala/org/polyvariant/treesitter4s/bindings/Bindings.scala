@@ -23,9 +23,20 @@ import cats.effect.kernel.Sync
 
 object Bindings {
 
+  private val libName = {
+    val os = System.getProperty("os.name")
+
+    if (os.toLowerCase().contains("mac"))
+      "/treesitter.dylib"
+    else if (os.toLowerCase().contains("linux"))
+      "/treesitter.so"
+    else
+      sys.error(s"Unsupported system: $os")
+  }
+
   private val LIBRARY: TreeSitterLibrary = Native
     .load[TreeSitterLibrary](
-      "/Users/kubukoz/projects/java-tree-sitter/out.dylib",
+      Native.extractFromResourcePath(libName).toString(),
       classOf[TreeSitterLibrary],
     )
 
