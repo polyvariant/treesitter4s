@@ -56,12 +56,10 @@ private[bindings] object Facade {
           .map { treePointer =>
             new Tree {
 
-              def rootNode: Option[treesitter4s.Node] = {
-                val nodeStruct = ts.ts_tree_root_node(treePointer)
-                Option.unless(ts.ts_node_is_null(nodeStruct)) {
-                  fromNative.node(ts, nodeStruct)
-                }
-              }
+              def rootNode: Option[treesitter4s.Node] = fromNative.nodeNullCheck(
+                ts,
+                ts.ts_tree_root_node(treePointer),
+              )
 
             }
           }
@@ -87,9 +85,26 @@ private[bindings] object Facade {
 
   private object fromNative {
 
-    def node(ts: TreeSitterLibrary, node: TreeSitterLibrary.Node): treesitter4s.Node =
+    def nodeNullCheck(
+      ts: TreeSitterLibrary,
+      node: TreeSitterLibrary.Node,
+    ): Option[treesitter4s.Node] =
+      Option.unless(ts.ts_node_is_null(node))(
+        fromNative.node(ts, node)
+      )
+
+    def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
       new treesitter4s.Node {
-        def childCount: Int = ts.ts_node_child_count(node)
+        def childCount: Int = ts.ts_node_child_count(underlying)
+
+        def getChild(i: Int): Option[treesitter4s.Node] =
+          if (i >= 0 && i < childCount)
+            // Not checking for nulls, given we're in the right index range
+            Some(node(ts, ts.ts_node_child(underlying, i)))
+          else
+            None
+
+        def getString: String = ts.ts_node_string(underlying)
       }
 
   }

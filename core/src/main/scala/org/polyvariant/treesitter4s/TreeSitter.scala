@@ -47,5 +47,7 @@ trait Tree {
 }
 
 trait Node {
+  def getString: String
   def childCount: Int
+  def getChild(i: Int): Option[Node]
 }

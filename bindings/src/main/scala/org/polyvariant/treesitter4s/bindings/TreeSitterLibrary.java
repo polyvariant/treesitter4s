@@ -48,6 +48,9 @@ public interface TreeSitterLibrary extends Library {
 
 	int ts_node_child_count(Node node);
 
+	Node.ByValue ts_node_child(Node node, int index);
+
 	boolean ts_node_is_null(Node node);
 
+	String ts_node_string(Node node);
 }
