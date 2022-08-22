@@ -16,8 +16,18 @@
 
 package org.polyvariant.treesitter4s.bindings
 
+import com.sun.jna.Native
 import org.polyvariant.treesitter4s.TreeSitter
+import org.polyvariant.treesitter4s.bindings.facade.Facade
 
-object Bindings extends TreeSitter {
-  val noop: Unit = ()
+object Bindings {
+
+  private val LIBRARY: TreeSitterLibrary = Native
+    .load[TreeSitterLibrary](
+      "/Users/kubukoz/projects/java-tree-sitter/out.dylib",
+      classOf[TreeSitterLibrary],
+    )
+
+  def make(): TreeSitter = Facade.make(LIBRARY)
+
 }

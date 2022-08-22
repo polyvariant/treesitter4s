@@ -17,5 +17,27 @@
 package org.polyvariant.treesitter4s
 
 trait TreeSitter {
-  def noop: Unit
+  def parse(source: String, language: Language, encoding: Encoding): Tree
+}
+
+sealed trait Encoding extends Product with Serializable
+
+object Encoding {
+  case object UTF8 extends Encoding
+  case object UTF16 extends Encoding
+}
+
+// todo: this needs to be extensible
+sealed trait Language extends Product with Serializable
+
+object Language {
+  case object SmithyQL extends Language
+}
+
+trait Tree extends AutoCloseable {
+  def rootNode: Option[Node]
+}
+
+trait Node {
+  def childCount: Int
 }

@@ -16,12 +16,24 @@
 
 package org.polyvariant.treesitter4s.bindings
 
+import org.polyvariant.treesitter4s.Encoding
+import org.polyvariant.treesitter4s.Language
+import org.polyvariant.treesitter4s.bindings.Bindings
 import weaver._
-import org.polyvariant.treesitter4s.TreeSitter
 
-// placeholder tests
+import scala.util.Using
+
 object BindingTests extends FunSuite {
-  test("binding tests are executed") {
-    assert.eql((Bindings: TreeSitter).noop, ())
+  test("sample binding") {
+
+    val ts = Bindings.make()
+
+    Using.resource(ts.parse("Hello {}", Language.SmithyQL, Encoding.UTF8)) { tree =>
+      tree.rootNode.foreach { node =>
+        println(node.childCount)
+      }
+    }
+
+    success
   }
 }
