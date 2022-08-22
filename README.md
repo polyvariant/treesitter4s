@@ -6,4 +6,4 @@ Tree-sitter wrapper for Scala (JVM). Uses JNA to wrap the native library.
 
 - immutable, Scala-friendly API
 - resource safety (cats-effect-kernel)
-- extensible language support
+- extensible language support (todo)
