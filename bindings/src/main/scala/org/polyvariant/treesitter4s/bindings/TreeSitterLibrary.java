@@ -27,12 +27,12 @@ public interface TreeSitterLibrary extends Library {
 
 	@FieldOrder({ "context0", "context1", "context2", "context3", "id", "tree" })
 	public static class Node extends Structure {
-		public int context0;
-		public int context1;
-		public int context2;
-		public int context3;
-		public long id;
-		public long tree;
+		public Uint32_t context0;
+		public Uint32_t context1;
+		public Uint32_t context2;
+		public Uint32_t context3;
+		public Pointer id;
+		public Pointer tree;
 
 		public static class ByValue extends Node implements Structure.ByValue {
 		}
@@ -40,15 +40,16 @@ public interface TreeSitterLibrary extends Library {
 
 	Pointer ts_parser_new();
 
-	void ts_parser_set_language(Pointer parser, long language);
+	void ts_parser_set_language(Pointer parser, Pointer language);
 
-	Pointer ts_parser_parse_string_encoding(Pointer parser, Pointer oldTree, String string, int length, int encoding);
+	Pointer ts_parser_parse_string_encoding(Pointer parser, Pointer oldTree, String string, Uint32_t length,
+			int encoding);
 
 	Node.ByValue ts_tree_root_node(Pointer tree);
 
 	void ts_tree_delete(Pointer tree);
 
-	int ts_node_child_count(Node node);
+	Uint32_t ts_node_child_count(Node node);
 
 	Node.ByValue ts_node_child(Node node, int index);
 

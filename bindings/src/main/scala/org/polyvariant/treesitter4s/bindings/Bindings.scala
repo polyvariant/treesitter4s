@@ -16,21 +16,16 @@
 
 package org.polyvariant.treesitter4s.bindings
 
+import cats.effect.kernel.Sync
 import com.sun.jna.Native
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.facade.Facade
-import cats.effect.kernel.Sync
-import org.polyvariant.treesitter4s.Language
 
 object Bindings {
 
   private val libName = {
     val os = System.getProperty("os.name")
 
-    // if (os.toLowerCase().contains("mac"))
-    //   "/treesitter.dylib"
-    // else if (os.toLowerCase().contains("linux"))
-    //   "/treesitter.so"
     if (os.toLowerCase().contains("mac"))
       "/libtree-sitter.dylib"
     else if (os.toLowerCase().contains("linux"))
@@ -45,11 +40,11 @@ object Bindings {
       classOf[TreeSitterLibrary],
     )
 
-  def make[F[_]: Sync](): TreeSitter[F] = Facade.make[F](LIBRARY)
+  def make[F[_]: Sync](): TreeSitter[F] { type Language = LanguageRef } = Facade.make[F](LIBRARY)
 
 }
 
-object LanguageBindings {
+object ScalaLanguageBindings {
 
   private val libName = {
     val os = System.getProperty("os.name")
@@ -72,6 +67,6 @@ object LanguageBindings {
       classOf[TreeSitterScala],
     )
 
-  def scala: Long = LIBRARY.tree_sitter_scala()
+  def scala: LanguageRef = LanguageRef(LIBRARY.tree_sitter_scala())
 
 }

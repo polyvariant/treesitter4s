@@ -20,10 +20,11 @@ import cats.effect.kernel.Resource
 
 trait TreeSitter[F[_]] {
 
+  type Language
+
   def parse(
     source: String,
-    language: Long,
-    // language: Language,
+    language: Language,
     encoding: Encoding,
   ): Resource[F, Tree]
 
@@ -34,13 +35,6 @@ sealed trait Encoding extends Product with Serializable
 object Encoding {
   case object UTF8 extends Encoding
   case object UTF16 extends Encoding
-}
-
-// todo: this needs to be extensible
-sealed trait Language extends Product with Serializable
-
-object Language {
-  case object Scala extends Language
 }
 
 trait Tree {

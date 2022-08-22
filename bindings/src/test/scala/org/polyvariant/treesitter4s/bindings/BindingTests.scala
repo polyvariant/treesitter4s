@@ -19,14 +19,13 @@ package org.polyvariant.treesitter4s.bindings
 import cats.effect.IO
 import cats.implicits._
 import org.polyvariant.treesitter4s.Encoding
-import org.polyvariant.treesitter4s.Language
 import org.polyvariant.treesitter4s.bindings.Bindings
 import weaver._
 
 object BindingTests extends SimpleIOSuite {
   val ts = Bindings.make[IO]()
 
-  def parseExample(s: String) = ts.parse(s, LanguageBindings.scala, Encoding.UTF8)
+  def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF8)
 
   test("root node child count") {
 

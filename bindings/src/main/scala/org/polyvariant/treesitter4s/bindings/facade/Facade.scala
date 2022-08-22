@@ -17,9 +17,9 @@
 package org.polyvariant.treesitter4s.bindings.facade
 
 import org.polyvariant.treesitter4s
+import org.polyvariant.treesitter4s.bindings.LanguageRef
 import org.polyvariant.treesitter4s.Encoding.UTF16
 import org.polyvariant.treesitter4s.Encoding.UTF8
-import org.polyvariant.treesitter4s.Language.Scala
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
@@ -29,25 +29,27 @@ import com.sun.jna.Pointer
 
 private[bindings] object Facade {
 
-  def make[F[_]: Sync](ts: TreeSitterLibrary): TreeSitter[F] =
+  def make[F[_]: Sync](
+    ts: TreeSitterLibrary
+  ): TreeSitter[F] { type Language = LanguageRef } =
     new TreeSitter[F] {
+      type Language = LanguageRef
 
       def parse(
         source: String,
-        language: Long,
+        language: LanguageRef,
         encoding: treesitter4s.Encoding,
       ): Resource[F, Tree] = {
 
         val alloc: F[Pointer] = Sync[F].delay {
           val parserPointer = ts.ts_parser_new()
-          ts.ts_parser_set_language(parserPointer, language)
-          // ts.ts_parser_set_language(parserPointer, toNative.language(ts, language))
+          ts.ts_parser_set_language(parserPointer, language.pointer)
 
           ts.ts_parser_parse_string_encoding(
             parserPointer,
             null /* old tree */,
             source,
-            source.length(),
+            new treesitter4s.bindings.Uint32_t(source.length()),
             toNative.encoding(encoding),
           )
         }
@@ -71,11 +73,6 @@ private[bindings] object Facade {
 
   private object toNative {
 
-    def language(ts: TreeSitterLibrary, lang: treesitter4s.Language): Long =
-      lang match {
-        case Scala => ??? // ts.tree_sitter_scala()
-      }
-
     def encoding(enc: treesitter4s.Encoding): Int =
       enc match {
         case UTF8  => 0
@@ -96,7 +93,7 @@ private[bindings] object Facade {
 
     def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
       new treesitter4s.Node {
-        def childCount: Int = ts.ts_node_child_count(underlying)
+        def childCount: Int = ts.ts_node_child_count(underlying).intValue()
 
         def getChild(i: Int): Option[treesitter4s.Node] =
           if (i >= 0 && i < childCount)
