@@ -16,8 +16,16 @@
 
 package org.polyvariant.treesitter4s
 
-trait TreeSitter {
-  def parse(source: String, language: Language, encoding: Encoding): Tree
+import cats.effect.kernel.Resource
+
+trait TreeSitter[F[_]] {
+
+  def parse(
+    source: String,
+    language: Language,
+    encoding: Encoding,
+  ): Resource[F, Tree]
+
 }
 
 sealed trait Encoding extends Product with Serializable
@@ -34,7 +42,7 @@ object Language {
   case object SmithyQL extends Language
 }
 
-trait Tree extends AutoCloseable {
+trait Tree {
   def rootNode: Option[Node]
 }
 

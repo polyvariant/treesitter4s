@@ -19,6 +19,7 @@ package org.polyvariant.treesitter4s.bindings
 import com.sun.jna.Native
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.facade.Facade
+import cats.effect.kernel.Sync
 
 object Bindings {
 
@@ -28,6 +29,6 @@ object Bindings {
       classOf[TreeSitterLibrary],
     )
 
-  def make(): TreeSitter = Facade.make(LIBRARY)
+  def make[F[_]: Sync](): TreeSitter[F] = Facade.make[F](LIBRARY)
 
 }

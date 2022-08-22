@@ -16,24 +16,22 @@
 
 package org.polyvariant.treesitter4s.bindings
 
+import cats.effect.IO
+import cats.implicits._
 import org.polyvariant.treesitter4s.Encoding
 import org.polyvariant.treesitter4s.Language
 import org.polyvariant.treesitter4s.bindings.Bindings
 import weaver._
 
-import scala.util.Using
-
-object BindingTests extends FunSuite {
+object BindingTests extends SimpleIOSuite {
   test("sample binding") {
 
-    val ts = Bindings.make()
+    val ts = Bindings.make[IO]()
 
-    Using.resource(ts.parse("Hello {}", Language.SmithyQL, Encoding.UTF8)) { tree =>
-      tree.rootNode.foreach { node =>
-        println(node.childCount)
-      }
+    ts.parse("Hello {}", Language.SmithyQL, Encoding.UTF8).use { tree =>
+      val rootNode = tree.rootNode
+
+      assert.eql(rootNode.map(_.childCount), Some(3)).pure[IO]
     }
-
-    success
   }
 }

@@ -23,41 +23,48 @@ import org.polyvariant.treesitter4s.Language.SmithyQL
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
+import cats.effect.kernel.Sync
+import cats.effect.kernel.Resource
+import com.sun.jna.Pointer
 
 private[bindings] object Facade {
 
-  def make(ts: TreeSitterLibrary): TreeSitter =
-    new TreeSitter {
+  def make[F[_]: Sync](ts: TreeSitterLibrary): TreeSitter[F] =
+    new TreeSitter[F] {
 
-      // todo: a way to make this API resource-safe
       def parse(
         source: String,
         language: treesitter4s.Language,
         encoding: treesitter4s.Encoding,
-      ): Tree = {
+      ): Resource[F, Tree] = {
 
-        val parserPointer = ts.ts_parser_new()
-        ts.ts_parser_set_language(parserPointer, toNative.language(ts, language))
+        val alloc: F[Pointer] = Sync[F].delay {
+          val parserPointer = ts.ts_parser_new()
+          ts.ts_parser_set_language(parserPointer, toNative.language(ts, language))
 
-        val treePointer = ts.ts_parser_parse_string_encoding(
-          parserPointer,
-          null /* old tree */,
-          source,
-          source.length(),
-          toNative.encoding(encoding),
-        )
+          ts.ts_parser_parse_string_encoding(
+            parserPointer,
+            null /* old tree */,
+            source,
+            source.length(),
+            toNative.encoding(encoding),
+          )
+        }
 
-        new Tree {
-          def close(): Unit = ts.ts_tree_delete(treePointer)
+        Resource
+          .make(alloc)(ptr => Sync[F].interruptibleMany(ts.ts_tree_delete(ptr)))
+          .map { treePointer =>
+            new Tree {
 
-          def rootNode: Option[treesitter4s.Node] = {
-            val nodeStruct = ts.ts_tree_root_node(treePointer)
-            Option.unless(ts.ts_node_is_null(nodeStruct)) {
-              fromNative.node(ts, nodeStruct)
+              def rootNode: Option[treesitter4s.Node] = {
+                val nodeStruct = ts.ts_tree_root_node(treePointer)
+                Option.unless(ts.ts_node_is_null(nodeStruct)) {
+                  fromNative.node(ts, nodeStruct)
+                }
+              }
+
             }
           }
-
-        }
 
       }
 
