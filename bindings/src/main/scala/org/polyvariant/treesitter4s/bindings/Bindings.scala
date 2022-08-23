@@ -23,7 +23,7 @@ import org.polyvariant.treesitter4s.bindings.facade.Facade
 object Bindings {
 
   private val LIBRARY: TreeSitterLibrary = Native
-    .load[TreeSitterLibrary](
+    .load(
       "tree-sitter",
       classOf[TreeSitterLibrary],
     )

@@ -22,7 +22,7 @@ import org.polyvariant.treesitter4s.bindings.LanguageRef
 object ScalaLanguageBindings {
 
   private val LIBRARY: TreeSitterScala = Native
-    .load[TreeSitterScala](
+    .load(
       "tree-sitter-scala",
       classOf[TreeSitterScala],
     )

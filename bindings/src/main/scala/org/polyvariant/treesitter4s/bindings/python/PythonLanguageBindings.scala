@@ -22,7 +22,7 @@ import org.polyvariant.treesitter4s.bindings.LanguageRef
 object PythonLanguageBindings {
 
   private val LIBRARY: TreeSitterPython = Native
-    .load[TreeSitterPython](
+    .load(
       "tree-sitter-python",
       classOf[TreeSitterPython],
     )
