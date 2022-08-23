@@ -22,13 +22,16 @@ import org.polyvariant.treesitter4s.bindings.Bindings
 import weaver._
 import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 import org.polyvariant.treesitter4s.Encoding
+import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
 
 object BindingTests extends FunSuite {
   val ts = Bindings.instance
 
   def parseExample(s: String): Tree = ts.parse(s, ScalaLanguageBindings.Scala, Encoding.UTF8)
-  def parseExamplePython(s: String): Tree =
-    ??? // ts.parse(s, PythonLanguageBindings.Python, Encoding.UTF8)
+
+  def parseExamplePython(
+    s: String
+  ): Tree = ts.parse(s, PythonLanguageBindings.Python, Encoding.UTF8)
 
   test("root node child count") {
     val tree = parseExample("class Hello {}")
@@ -37,21 +40,19 @@ object BindingTests extends FunSuite {
     assert.eql(rootNode.map(_.children.length), Some(1))
   }
 
-  if (false)
-    test("root node child type") {
-      val tree = parseExample("class Hello {}")
-      val rootNode = tree.rootNode
+  test("root node child type") {
+    val tree = parseExample("class Hello {}")
+    val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
-    }
+    assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
+  }
 
-  if (false)
-    test("root node child type - python") {
-      val tree = parseExamplePython("def hello()")
-      val rootNode = tree.rootNode
+  test("root node child type - python") {
+    val tree = parseExamplePython("def hello()")
+    val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.tpe), Some("module"))
-    }
+    assert.eql(rootNode.map(_.tpe), Some("module"))
+  }
 
   test("root node child by index (in range)") {
     val tree = parseExample("class Hello {}")

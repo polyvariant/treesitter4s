@@ -86,19 +86,18 @@ private[bindings] object Facade {
         fromNative.node(ts, node)
       )
 
-    def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node = {
-      println(ts.ts_node_child_count(underlying))
+    def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
       NodeImpl(
-        // text = ts.ts_node_string(underlying),
-        children = Nil,
-        // List.tabulate(ts.ts_node_child_count(underlying).intValue()) { i =>
-        //   fromNative.node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i)))
-        // },
-        // tpe = ts.ts_node_type(underlying),
+        text = ts.ts_node_string(underlying),
+        children =
+          List.tabulate(ts.ts_node_child_count(underlying).intValue()) { i =>
+            fromNative
+              .node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i.toLong)))
+          },
+        tpe = ts.ts_node_type(underlying),
         startByte = ts.ts_node_start_byte(underlying).longValue(),
         endByte = ts.ts_node_end_byte(underlying).longValue(),
       )
-    }
 
     def tree(
       ts: TreeSitterLibrary,
@@ -119,14 +118,9 @@ private[bindings] case class TreeImpl(
 ) extends Tree
 
 private[bindings] case class NodeImpl(
-  // text: String,
-  // tpe: String,
+  text: String,
+  tpe: String,
   children: List[treesitter4s.Node],
   startByte: Long,
   endByte: Long,
-) extends treesitter4s.Node {
-  def text: String = ???
-
-  def tpe: String = ???
-
-}
+) extends treesitter4s.Node

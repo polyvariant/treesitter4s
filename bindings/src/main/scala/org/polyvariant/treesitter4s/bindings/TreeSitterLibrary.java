@@ -94,7 +94,7 @@ public interface TreeSitterLibrary extends Library {
 
 	Uint32_t ts_node_child_count(Node node);
 
-	// String ts_node_type(Node node);
+	String ts_node_type(Node node);
 
 	Uint32_t ts_node_start_byte(Node node);
 
@@ -104,5 +104,5 @@ public interface TreeSitterLibrary extends Library {
 
 	boolean ts_node_is_null(Node node);
 
-	// String ts_node_string(Node node);
+	String ts_node_string(Node node);
 }
