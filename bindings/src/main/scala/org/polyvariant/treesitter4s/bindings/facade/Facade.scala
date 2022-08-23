@@ -41,24 +41,31 @@ private[bindings] object Facade {
         encoding: treesitter4s.Encoding,
       ): Resource[F, Tree] = {
 
-        val alloc: F[Pointer] = Sync[F].delay {
-          val parserPointer = ts.ts_parser_new()
-          ts.ts_parser_set_language(parserPointer, language.pointer)
-
-          ts.ts_parser_parse_string_encoding(
-            parserPointer,
-            null /* old tree */,
-            source,
-            new treesitter4s.bindings.Uint32_t(source.length()),
-            toNative.encoding(encoding),
+        val parserRes: Resource[F, Pointer] =
+          Resource.make(Sync[F].delay(ts.ts_parser_new()))(p =>
+            Sync[F].delay(ts.ts_parser_delete(p))
           )
-        }
 
-        Resource
-          .make(alloc)(ptr => Sync[F].interruptibleMany(ts.ts_tree_delete(ptr)))
+        def alloc(parserPointer: Pointer): Resource[F, Pointer] =
+          Resource
+            .make {
+              Sync[F].delay {
+                ts.ts_parser_set_language(parserPointer, language.pointer)
+
+                ts.ts_parser_parse_string_encoding(
+                  parserPointer,
+                  null /* old tree */,
+                  source,
+                  new treesitter4s.bindings.Uint32_t(source.length()),
+                  toNative.encoding(encoding),
+                )
+              }
+            }(ptr => Sync[F].delay(ts.ts_tree_delete(ptr)))
+
+        parserRes
+          .flatMap(alloc)
           .map { treePointer =>
             new Tree {
-
               def rootNode: Option[treesitter4s.Node] = fromNative.nodeNullCheck(
                 ts,
                 ts.ts_tree_root_node(treePointer),

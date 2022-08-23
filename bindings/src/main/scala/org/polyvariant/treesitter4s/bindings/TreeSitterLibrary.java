@@ -40,6 +40,8 @@ public interface TreeSitterLibrary extends Library {
 
 	Pointer ts_parser_new();
 
+	void ts_parser_delete(Pointer parser);
+
 	void ts_parser_set_language(Pointer parser, Pointer language);
 
 	Pointer ts_parser_parse_string_encoding(Pointer parser, Pointer oldTree, String string, Uint32_t length,

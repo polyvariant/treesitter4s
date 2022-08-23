@@ -25,7 +25,7 @@ import weaver._
 object BindingTests extends SimpleIOSuite {
   val ts = Bindings.make[IO]()
 
-  def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF8)
+  def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF16)
 
   test("root node child count") {
 
