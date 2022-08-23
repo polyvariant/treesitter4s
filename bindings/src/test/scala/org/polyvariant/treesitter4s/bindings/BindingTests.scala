@@ -20,18 +20,14 @@ import cats.implicits._
 import org.polyvariant.treesitter4s.Encoding
 import org.polyvariant.treesitter4s.bindings.Bindings
 import weaver._
-import cats.effect.IO
 
-object BindingTests extends SimpleIOSuite {
+object BindingTests extends FunSuite {
   val ts = Bindings.instance
-
-  private val isLinux = System.getProperty("os.name").toLowerCase().contains("linux")
-  private val skipLinux = ignore("disabled on linux").whenA(isLinux)
 
   def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF8)
   def parseExamplePython(s: String) = ts.parse(s, PythonLanguageBindings.python, Encoding.UTF8)
 
-  pureTest("root node child count") {
+  test("root node child count") {
     val tree = parseExample("class Hello {}")
     val rootNode = tree.rootNode
 
@@ -39,24 +35,20 @@ object BindingTests extends SimpleIOSuite {
   }
 
   test("root node child type") {
-    skipLinux >> {
-      val tree = parseExample("class Hello {}")
-      val rootNode = tree.rootNode
+    val tree = parseExample("class Hello {}")
+    val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.tpe), Some("compilation_unit")).pure[IO]
-    }
+    assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
   }
 
   test("root node child type - python") {
-    skipLinux >> {
-      val tree = parseExamplePython("def hello()")
-      val rootNode = tree.rootNode
+    val tree = parseExamplePython("def hello()")
+    val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.tpe), Some("module")).pure[IO]
-    }
+    assert.eql(rootNode.map(_.tpe), Some("module"))
   }
 
-  pureTest("root node child by index (in range)") {
+  test("root node child by index (in range)") {
     val tree = parseExample("class Hello {}")
 
     val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
@@ -64,7 +56,7 @@ object BindingTests extends SimpleIOSuite {
     assert.eql(rootNode.children.lift(0).isDefined, true)
   }
 
-  pureTest("root node child by index (out of range)") {
+  test("root node child by index (out of range)") {
     val tree = parseExample("class Hello {}")
     val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
@@ -72,20 +64,14 @@ object BindingTests extends SimpleIOSuite {
   }
 
   test("root node string, range") {
-    skipLinux >> {
-      val tree = parseExample("class Hello {}")
-      val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+    val tree = parseExample("class Hello {}")
+    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-      val expected =
-        "(compilation_unit (class_definition name: (identifier) body: (template_body)))"
+    val expected = "(compilation_unit (class_definition name: (identifier) body: (template_body)))"
 
-      (
-        assert.eql(rootNode.text, expected) &&
-          assert.eql(rootNode.startByte, 0) &&
-          assert.eql(rootNode.endByte, 14)
-      )
-        .pure[IO]
-    }
+    assert.eql(rootNode.text, expected) &&
+    assert.eql(rootNode.startByte, 0) &&
+    assert.eql(rootNode.endByte, 14)
   }
 
 }
