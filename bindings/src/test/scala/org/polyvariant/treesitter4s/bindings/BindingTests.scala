@@ -25,6 +25,9 @@ import weaver._
 object BindingTests extends SimpleIOSuite {
   val ts = Bindings.make[IO]()
 
+  private val isLinux = System.getProperty("os.name").toLowerCase().contains("linux")
+  private val skipLinux = ignore("disabled on linux").whenA(isLinux)
+
   def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF8)
   def parseExamplePython(s: String) = ts.parse(s, PythonLanguageBindings.python, Encoding.UTF8)
 
@@ -37,20 +40,22 @@ object BindingTests extends SimpleIOSuite {
   }
 
   test("root node child type") {
-    parseExample("class Hello {}").use { tree =>
-      val rootNode = tree.rootNode
+    skipLinux *>
+      parseExample("class Hello {}").use { tree =>
+        val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.tpe), Some("compilation_unit")).pure[IO]
-    }
+        assert.eql(rootNode.map(_.tpe), Some("compilation_unit")).pure[IO]
+      }
   }
 
   test("root node child type - python") {
 
-    parseExamplePython("def hello()").use { tree =>
-      val rootNode = tree.rootNode
+    skipLinux *>
+      parseExamplePython("def hello()").use { tree =>
+        val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.tpe), Some("module")).pure[IO]
-    }
+        assert.eql(rootNode.map(_.tpe), Some("module")).pure[IO]
+      }
   }
 
   test("root node child by index (in range)") {
@@ -70,7 +75,7 @@ object BindingTests extends SimpleIOSuite {
   }
 
   test("root node string, range") {
-    ignore("debugging linux and the string method seems to be sus") *>
+    skipLinux *>
       parseExample("class Hello {}").use { tree =>
         val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
