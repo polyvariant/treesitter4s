@@ -2,22 +2,27 @@
 
 set -e
 
-SUFFIX=""
-# if $SYSTEM contains darwin, suffix is dylib
-if [[ "$SYSTEM" == *darwin* ]]; then
-    SUFFIX="dylib"
-else
-    SUFFIX="so"
-fi
+function update() {
+    SYSTEM="$1"
+    RESOURCE_DIR="$2"
+    SUFFIX="$3"
 
-nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter"
-cp -L "result/lib/libtree-sitter.$SUFFIX" "bindings/src/main/resources/libtree-sitter.$SUFFIX"
-chmod +w "bindings/src/main/resources/libtree-sitter.$SUFFIX"
+    RESOURCE_PATH="bindings/src/main/resources/$RESOURCE_DIR"
+    mkdir -p "$RESOURCE_PATH"
 
-nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-scala"
-cp -L result/parser "bindings/src/main/resources/tree-sitter-scala.$SUFFIX"
-chmod +w "bindings/src/main/resources/tree-sitter-scala.$SUFFIX"
+    nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter"
+    cp -L "result/lib/libtree-sitter.$SUFFIX" "$RESOURCE_PATH/libtree-sitter.$SUFFIX"
+    chmod +w "$RESOURCE_PATH/libtree-sitter.$SUFFIX"
 
-nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-python"
-cp -L result/parser "bindings/src/main/resources/tree-sitter-python.$SUFFIX"
-chmod +w "bindings/src/main/resources/tree-sitter-python.$SUFFIX"
+    nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-scala"
+    cp -L result/parser "$RESOURCE_PATH/libtree-sitter-scala.$SUFFIX"
+    chmod +w "$RESOURCE_PATH/libtree-sitter-scala.$SUFFIX"
+
+    nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-python"
+    cp -L result/parser "$RESOURCE_PATH/libtree-sitter-python.$SUFFIX"
+    chmod +w "$RESOURCE_PATH/libtree-sitter-python.$SUFFIX"
+
+}
+
+update "aarch64-darwin" "darwin-aarch64" "dylib"
+update "x86_64-linux" "linux-x86-64" "so"

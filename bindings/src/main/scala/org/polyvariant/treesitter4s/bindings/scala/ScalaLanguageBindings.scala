@@ -5,20 +5,9 @@ import org.polyvariant.treesitter4s.bindings.LanguageRef
 
 object ScalaLanguageBindings {
 
-  private val libName = {
-    val os = System.getProperty("os.name")
-
-    if (os.toLowerCase().contains("mac"))
-      "/tree-sitter-scala.dylib"
-    else if (os.toLowerCase().contains("linux"))
-      "/tree-sitter-scala.so"
-    else
-      sys.error(s"Unsupported system: $os")
-  }
-
   private val LIBRARY: TreeSitterScala = Native
     .load[TreeSitterScala](
-      Native.extractFromResourcePath(libName).toString(),
+      "tree-sitter-scala",
       classOf[TreeSitterScala],
     )
 

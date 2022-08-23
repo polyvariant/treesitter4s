@@ -17,17 +17,18 @@
 package org.polyvariant.treesitter4s.bindings
 
 import cats.implicits._
-import org.polyvariant.treesitter4s.Encoding
+import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.bindings.Bindings
-import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
-import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 import weaver._
+import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
+import org.polyvariant.treesitter4s.Encoding
 
 object BindingTests extends FunSuite {
   val ts = Bindings.instance
 
-  def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.Scala, Encoding.UTF8)
-  def parseExamplePython(s: String) = ts.parse(s, PythonLanguageBindings.Python, Encoding.UTF8)
+  def parseExample(s: String): Tree = ts.parse(s, ScalaLanguageBindings.Scala, Encoding.UTF8)
+  def parseExamplePython(s: String): Tree =
+    ??? // ts.parse(s, PythonLanguageBindings.Python, Encoding.UTF8)
 
   test("root node child count") {
     val tree = parseExample("class Hello {}")

@@ -22,20 +22,9 @@ import org.polyvariant.treesitter4s.bindings.facade.Facade
 
 object Bindings {
 
-  private val libName = {
-    val os = System.getProperty("os.name")
-
-    if (os.toLowerCase().contains("mac"))
-      "/libtree-sitter.dylib"
-    else if (os.toLowerCase().contains("linux"))
-      "/libtree-sitter.so"
-    else
-      sys.error(s"Unsupported system: $os")
-  }
-
   private val LIBRARY: TreeSitterLibrary = Native
     .load[TreeSitterLibrary](
-      Native.extractFromResourcePath(libName).toString(),
+      "tree-sitter",
       classOf[TreeSitterLibrary],
     )
 
