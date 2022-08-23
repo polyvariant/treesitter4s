@@ -23,6 +23,7 @@ import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.LanguageRef
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
+import java.nio.charset.StandardCharsets
 
 private[bindings] object Facade {
 
@@ -46,7 +47,7 @@ private[bindings] object Facade {
           ts.ts_parser_parse_string_encoding(
             parserPointer,
             null /* old tree */,
-            source,
+            source.getBytes(StandardCharsets.UTF_8),
             new treesitter4s.bindings.Uint32_t(source.length()),
             toNative.encoding(encoding),
           )
