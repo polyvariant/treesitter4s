@@ -85,14 +85,20 @@ private[bindings] object Facade {
         fromNative.node(ts, node)
       )
 
+    def copyString(s: String): String = {
+      val chars = new Array[Char](s.length)
+      s.getChars(0, s.length, chars, 0)
+      new String(chars)
+    }
+
     def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
       NodeImpl(
-        text = ts.ts_node_string(underlying),
+        text = copyString(ts.ts_node_string(underlying)),
         children =
           List.tabulate(ts.ts_node_child_count(underlying).intValue()) { i =>
             fromNative.node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i)))
           },
-        tpe = ts.ts_node_type(underlying),
+        tpe = copyString(ts.ts_node_type(underlying)),
         startByte = ts.ts_node_start_byte(underlying).intValue(),
         endByte = ts.ts_node_end_byte(underlying).intValue(),
       )
