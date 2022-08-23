@@ -86,7 +86,8 @@ private[bindings] object Facade {
         fromNative.node(ts, node)
       )
 
-    def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
+    def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node = {
+      println(ts.ts_node_child_count(underlying))
       NodeImpl(
         // text = ts.ts_node_string(underlying),
         children = Nil,
@@ -97,6 +98,7 @@ private[bindings] object Facade {
         startByte = ts.ts_node_start_byte(underlying).longValue(),
         endByte = ts.ts_node_end_byte(underlying).longValue(),
       )
+    }
 
     def tree(
       ts: TreeSitterLibrary,
