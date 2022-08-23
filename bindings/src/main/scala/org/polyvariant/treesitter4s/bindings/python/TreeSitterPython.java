@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings;
+package org.polyvariant.treesitter4s.bindings.python;
 
 import com.sun.jna.*;
 

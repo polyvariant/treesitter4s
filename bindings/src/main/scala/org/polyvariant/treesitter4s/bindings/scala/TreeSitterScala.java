@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings;
+package org.polyvariant.treesitter4s.bindings.scala;
 
 import com.sun.jna.*;
 
