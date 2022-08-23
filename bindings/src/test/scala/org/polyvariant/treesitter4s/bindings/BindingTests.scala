@@ -29,6 +29,8 @@ object BindingTests extends FunSuite {
   def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.Scala, Encoding.UTF8)
   def parseExamplePython(s: String) = ts.parse(s, PythonLanguageBindings.Python, Encoding.UTF8)
 
+  com.sun.jna.Native.setProtected(true)
+
   test("root node child count") {
     val tree = parseExample("class Hello {}")
     val rootNode = tree.rootNode
