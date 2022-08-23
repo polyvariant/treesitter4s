@@ -2,6 +2,17 @@
 
 set -e
 
+function updateGrammar() {
+    SYSTEM="$1"
+    RESOURCE_DIR="$2"
+    SUFFIX="$3"
+    GRAMMAR="$4"
+
+    nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.$GRAMMAR"
+    cp -L result/parser "$RESOURCE_PATH/lib$GRAMMAR.$SUFFIX"
+    chmod +w "$RESOURCE_PATH/lib$GRAMMAR.$SUFFIX"
+}
+
 function update() {
     SYSTEM="$1"
     RESOURCE_DIR="$2"
@@ -14,14 +25,8 @@ function update() {
     cp -L "result/lib/libtree-sitter.$SUFFIX" "$RESOURCE_PATH/libtree-sitter.$SUFFIX"
     chmod +w "$RESOURCE_PATH/libtree-sitter.$SUFFIX"
 
-    nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-scala"
-    cp -L result/parser "$RESOURCE_PATH/libtree-sitter-scala.$SUFFIX"
-    chmod +w "$RESOURCE_PATH/libtree-sitter-scala.$SUFFIX"
-
-    nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-python"
-    cp -L result/parser "$RESOURCE_PATH/libtree-sitter-python.$SUFFIX"
-    chmod +w "$RESOURCE_PATH/libtree-sitter-python.$SUFFIX"
-
+    updateGrammar "$SYSTEM" "$RESOURCE_DIR" "$SUFFIX" "tree-sitter-scala"
+    updateGrammar "$SYSTEM" "$RESOURCE_DIR" "$SUFFIX" "tree-sitter-python"
 }
 
 update "aarch64-darwin" "darwin-aarch64" "dylib"
