@@ -25,6 +25,14 @@ function update() {
     cp -L "result/lib/libtree-sitter.$SUFFIX" "$RESOURCE_PATH/libtree-sitter.$SUFFIX"
     chmod +w "$RESOURCE_PATH/libtree-sitter.$SUFFIX"
 
+    nix build "nixpkgs#legacyPackages.$SYSTEM.libcxxabi"
+    cp -L "result/lib/libc++abi.$SUFFIX" "$RESOURCE_PATH/libc++abi.$SUFFIX"
+    chmod +w "$RESOURCE_PATH/libc++abi.$SUFFIX"
+
+    nix build "nixpkgs#legacyPackages.$SYSTEM.libcxx"
+    cp -L "result/lib/libc++.$SUFFIX" "$RESOURCE_PATH/libc++.$SUFFIX"
+    chmod +w "$RESOURCE_PATH/libc++.$SUFFIX"
+
     updateGrammar "$SYSTEM" "$RESOURCE_DIR" "$SUFFIX" "tree-sitter-scala"
     updateGrammar "$SYSTEM" "$RESOURCE_DIR" "$SUFFIX" "tree-sitter-python"
 }
