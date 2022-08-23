@@ -73,11 +73,14 @@ public interface TreeSitterLibrary extends Library {
 	Parser ts_parser_new();
 
 	// parser
+
 	void ts_parser_delete(Parser parser);
 
 	void ts_parser_set_language(Parser parser, Language language);
 
 	Tree ts_parser_parse_string_encoding(Parser parser, Pointer oldTree, byte[] string, Uint32_t length, int encoding);
+
+	// tree
 
 	Node.ByValue ts_tree_root_node(Tree tree);
 

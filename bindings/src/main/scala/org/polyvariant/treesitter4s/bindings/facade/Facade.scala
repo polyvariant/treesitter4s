@@ -44,11 +44,12 @@ private[bindings] object Facade {
         def mkTree(parserPointer: TreeSitterLibrary.Parser): TreeSitterLibrary.Tree = {
           ts.ts_parser_set_language(parserPointer, language.pointer)
 
+          val sourceBytes = source.getBytes(StandardCharsets.UTF_8)
           ts.ts_parser_parse_string_encoding(
             parserPointer,
             null /* old tree */,
-            source.getBytes(StandardCharsets.UTF_8),
-            new treesitter4s.bindings.Uint32_t(source.length()),
+            sourceBytes,
+            new treesitter4s.bindings.Uint32_t(sourceBytes.length),
             toNative.encoding(encoding),
           )
         }

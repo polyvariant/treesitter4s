@@ -27,6 +27,6 @@ libraryDependencies ++= Seq(
 
 ## Goals
 
-- **immutable**, Scala-friendly API
+- **immutable**, read-only, Scala-friendly API
 - ~~decent performance~~
 - extensible language support
