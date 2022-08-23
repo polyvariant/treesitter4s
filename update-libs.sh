@@ -27,3 +27,4 @@ function update() {
 update "aarch64-darwin" "darwin-aarch64" "dylib"
 update "x86_64-darwin" "darwin-x86-64" "dylib"
 update "x86_64-linux" "linux-x86-64" "so"
+update "aarch64-linux" "linux-aarch64" "so"
