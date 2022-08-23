@@ -16,65 +16,63 @@
 
 package org.polyvariant.treesitter4s.bindings.facade
 
+import com.sun.jna.Pointer
 import org.polyvariant.treesitter4s
-import org.polyvariant.treesitter4s.bindings.LanguageRef
 import org.polyvariant.treesitter4s.Encoding.UTF16
 import org.polyvariant.treesitter4s.Encoding.UTF8
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
+import org.polyvariant.treesitter4s.bindings.LanguageRef
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
-import cats.effect.kernel.Sync
-import cats.effect.kernel.Resource
-import com.sun.jna.Pointer
 
 private[bindings] object Facade {
 
-  def make[F[_]: Sync](
+  def make(
     ts: TreeSitterLibrary
-  ): TreeSitter[F] { type Language = LanguageRef } =
-    new TreeSitter[F] {
+  ): TreeSitter.Aux[LanguageRef] =
+    new TreeSitter {
       type Language = LanguageRef
+
+      private def wrapTree(treePointer: Pointer, originalLanguage: Language): Tree[Language] =
+        new Tree[LanguageRef] {
+
+          val rootNode: Option[treesitter4s.Node] = fromNative.nodeNullCheck(
+            ts,
+            ts.ts_tree_root_node(treePointer),
+          )
+
+          val language: LanguageRef = originalLanguage
+        }
+
+      private def mkParser() = ts.ts_parser_new()
 
       def parse(
         source: String,
         language: LanguageRef,
         encoding: treesitter4s.Encoding,
-      ): Resource[F, Tree[LanguageRef]] = {
+      ): Tree[LanguageRef] = {
+
+        def mkTree(parserPointer: Pointer) = {
+          ts.ts_parser_set_language(parserPointer, language.pointer)
+
+          ts.ts_parser_parse_string_encoding(
+            parserPointer,
+            null /* old tree */,
+            source,
+            new treesitter4s.bindings.Uint32_t(source.length()),
+            toNative.encoding(encoding),
+          )
+        }
 
         val originalLanguage = language
-        val parserRes: Resource[F, Pointer] =
-          Resource.make(Sync[F].delay(ts.ts_parser_new()))(p =>
-            Sync[F].delay(ts.ts_parser_delete(p))
-          )
 
-        def alloc(parserPointer: Pointer): Resource[F, Pointer] =
-          Resource
-            .make {
-              Sync[F].delay {
-                ts.ts_parser_set_language(parserPointer, language.pointer)
+        val parserPointer = mkParser()
 
-                ts.ts_parser_parse_string_encoding(
-                  parserPointer,
-                  null /* old tree */,
-                  source,
-                  new treesitter4s.bindings.Uint32_t(source.length()),
-                  toNative.encoding(encoding),
-                )
-              }
-            }(ptr => Sync[F].delay(ts.ts_tree_delete(ptr)))
-
-        parserRes
-          .flatMap(alloc)
-          .map { treePointer =>
-            new Tree[LanguageRef] {
-              def rootNode: Option[treesitter4s.Node] = fromNative.nodeNullCheck(
-                ts,
-                ts.ts_tree_root_node(treePointer),
-              )
-
-              val language: LanguageRef = originalLanguage
-            }
-          }
+        try {
+          val tree = mkTree(parserPointer)
+          try wrapTree(tree, originalLanguage)
+          finally ts.ts_tree_delete(tree)
+        } finally ts.ts_parser_delete(parserPointer)
 
       }
 
@@ -102,22 +100,18 @@ private[bindings] object Facade {
 
     def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
       new treesitter4s.Node {
-        def childCount: Int = ts.ts_node_child_count(underlying).intValue()
+        val text: String = ts.ts_node_string(underlying)
 
-        def getChild(i: Int): Option[treesitter4s.Node] =
-          if (i >= 0 && i < childCount)
-            // Not checking for nulls, given we're in the right index range
-            Some(node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i))))
-          else
-            None
+        val children: List[treesitter4s.Node] =
+          List.tabulate(ts.ts_node_child_count(underlying).intValue()) { i =>
+            fromNative.node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i)))
+          }
 
-        def getString: String = ts.ts_node_string(underlying)
+        val tpe: String = ts.ts_node_type(underlying)
 
-        def tpe: String = ts.ts_node_type(underlying)
+        val getStartByte: Int = ts.ts_node_start_byte(underlying).intValue()
 
-        def getStartByte: Int = ts.ts_node_start_byte(underlying).intValue()
-
-        def getEndByte: Int = ts.ts_node_end_byte(underlying).intValue()
+        val getEndByte: Int = ts.ts_node_end_byte(underlying).intValue()
 
       }
 

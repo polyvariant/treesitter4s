@@ -35,10 +35,7 @@ val commonSettings = Seq(
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .settings(
-    commonSettings,
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect-kernel" % "3.3.14"
-    ),
+    commonSettings
   )
 
 lazy val bindings = crossProject(JVMPlatform)

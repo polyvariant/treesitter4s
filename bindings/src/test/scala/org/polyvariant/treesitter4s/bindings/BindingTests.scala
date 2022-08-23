@@ -16,14 +16,14 @@
 
 package org.polyvariant.treesitter4s.bindings
 
-import cats.effect.IO
 import cats.implicits._
 import org.polyvariant.treesitter4s.Encoding
 import org.polyvariant.treesitter4s.bindings.Bindings
 import weaver._
+import cats.effect.IO
 
 object BindingTests extends SimpleIOSuite {
-  val ts = Bindings.make[IO]()
+  val ts = Bindings.instance
 
   private val isLinux = System.getProperty("os.name").toLowerCase().contains("linux")
   private val skipLinux = ignore("disabled on linux").whenA(isLinux)
@@ -31,63 +31,61 @@ object BindingTests extends SimpleIOSuite {
   def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF8)
   def parseExamplePython(s: String) = ts.parse(s, PythonLanguageBindings.python, Encoding.UTF8)
 
-  test("root node child count") {
-    parseExample("class Hello {}").use { tree =>
-      val rootNode = tree.rootNode
+  pureTest("root node child count") {
+    val tree = parseExample("class Hello {}")
+    val rootNode = tree.rootNode
 
-      assert.eql(rootNode.map(_.childCount), Some(1)).pure[IO]
-    }
+    assert.eql(rootNode.map(_.children.length), Some(1))
   }
 
   test("root node child type") {
-    skipLinux *>
-      parseExample("class Hello {}").use { tree =>
-        val rootNode = tree.rootNode
+    skipLinux >> {
+      val tree = parseExample("class Hello {}")
+      val rootNode = tree.rootNode
 
-        assert.eql(rootNode.map(_.tpe), Some("compilation_unit")).pure[IO]
-      }
+      assert.eql(rootNode.map(_.tpe), Some("compilation_unit")).pure[IO]
+    }
   }
 
   test("root node child type - python") {
+    skipLinux >> {
+      val tree = parseExamplePython("def hello()")
+      val rootNode = tree.rootNode
 
-    skipLinux *>
-      parseExamplePython("def hello()").use { tree =>
-        val rootNode = tree.rootNode
-
-        assert.eql(rootNode.map(_.tpe), Some("module")).pure[IO]
-      }
-  }
-
-  test("root node child by index (in range)") {
-    parseExample("class Hello {}").use { tree =>
-      val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
-
-      assert.eql(rootNode.getChild(0).isDefined, true).pure[IO]
+      assert.eql(rootNode.map(_.tpe), Some("module")).pure[IO]
     }
   }
 
-  test("root node child by index (out of range)") {
-    parseExample("class Hello {}").use { tree =>
-      val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+  pureTest("root node child by index (in range)") {
+    val tree = parseExample("class Hello {}")
 
-      assert.eql(rootNode.getChild(-1).isDefined, false).pure[IO]
-    }
+    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+
+    assert.eql(rootNode.children.lift(0).isDefined, true)
+  }
+
+  pureTest("root node child by index (out of range)") {
+    val tree = parseExample("class Hello {}")
+    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+
+    assert.eql(rootNode.children.lift(-1).isDefined, false)
   }
 
   test("root node string, range") {
-    skipLinux *>
-      parseExample("class Hello {}").use { tree =>
-        val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+    skipLinux >> {
+      val tree = parseExample("class Hello {}")
+      val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-        val expected =
-          "(compilation_unit (class_definition name: (identifier) body: (template_body)))"
+      val expected =
+        "(compilation_unit (class_definition name: (identifier) body: (template_body)))"
 
-        (assert
-          .eql(rootNode.getString, expected) &&
+      (
+        assert.eql(rootNode.text, expected) &&
           assert.eql(rootNode.getStartByte, 0) &&
-          assert.eql(rootNode.getEndByte, 14))
-          .pure[IO]
-      }
+          assert.eql(rootNode.getEndByte, 14)
+      )
+        .pure[IO]
+    }
   }
 
 }

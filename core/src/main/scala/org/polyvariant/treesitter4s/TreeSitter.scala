@@ -16,9 +16,7 @@
 
 package org.polyvariant.treesitter4s
 
-import cats.effect.kernel.Resource
-
-trait TreeSitter[F[_]] {
+trait TreeSitter {
 
   type Language
 
@@ -26,8 +24,12 @@ trait TreeSitter[F[_]] {
     source: String,
     language: Language,
     encoding: Encoding,
-  ): Resource[F, Tree[Language]]
+  ): Tree[Language]
 
+}
+
+object TreeSitter {
+  type Aux[L] = TreeSitter { type Language = L }
 }
 
 sealed trait Encoding extends Product with Serializable
@@ -43,10 +45,9 @@ trait Tree[Language] {
 }
 
 trait Node {
-  def getString: String
+  def text: String
   def tpe: String
-  def childCount: Int
-  def getChild(i: Int): Option[Node]
+  def children: List[Node]
   def getStartByte: Int
   def getEndByte: Int
 }

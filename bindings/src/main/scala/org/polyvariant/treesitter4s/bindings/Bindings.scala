@@ -16,7 +16,6 @@
 
 package org.polyvariant.treesitter4s.bindings
 
-import cats.effect.kernel.Sync
 import com.sun.jna.Native
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.facade.Facade
@@ -40,7 +39,7 @@ object Bindings {
       classOf[TreeSitterLibrary],
     )
 
-  def make[F[_]: Sync](): TreeSitter[F] { type Language = LanguageRef } = Facade.make[F](LIBRARY)
+  val instance: TreeSitter.Aux[LanguageRef] = Facade.make(LIBRARY)
 
 }
 
