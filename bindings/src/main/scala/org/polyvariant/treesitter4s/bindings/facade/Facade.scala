@@ -49,7 +49,7 @@ private[bindings] object Facade {
             parserPointer,
             null /* old tree */,
             sourceBytes,
-            new treesitter4s.bindings.Uint32_t(sourceBytes.length),
+            new treesitter4s.bindings.Uint32_t(sourceBytes.length.toLong),
             toNative.encoding(encoding),
           )
         }

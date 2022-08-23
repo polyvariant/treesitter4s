@@ -23,7 +23,7 @@ public class Uint32_t extends IntegerType {
 		this(0);
 	}
 
-	public Uint32_t(int value) {
+	public Uint32_t(long value) {
 		super(4, value, true);
 	}
 }
