@@ -17,7 +17,8 @@
 package org.polyvariant.treesitter4s.bindings.scala;
 
 import com.sun.jna.*;
+import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary;
 
 public interface TreeSitterScala extends Library {
-	Pointer tree_sitter_scala();
+	TreeSitterLibrary.Language tree_sitter_scala();
 }

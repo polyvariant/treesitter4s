@@ -16,7 +16,6 @@
 
 package org.polyvariant.treesitter4s.bindings.facade
 
-import com.sun.jna.Pointer
 import org.polyvariant.treesitter4s
 import org.polyvariant.treesitter4s.Encoding.UTF16
 import org.polyvariant.treesitter4s.Encoding.UTF8
@@ -41,7 +40,7 @@ private[bindings] object Facade {
         encoding: treesitter4s.Encoding,
       ): Tree = {
 
-        def mkTree(parserPointer: Pointer): Pointer = {
+        def mkTree(parserPointer: TreeSitterLibrary.Parser): TreeSitterLibrary.Tree = {
           ts.ts_parser_set_language(parserPointer, language.pointer)
 
           ts.ts_parser_parse_string_encoding(
@@ -99,7 +98,7 @@ private[bindings] object Facade {
 
     def tree(
       ts: TreeSitterLibrary,
-      treePointer: Pointer,
+      treePointer: TreeSitterLibrary.Tree,
     ): Tree = TreeImpl(
       rootNode = fromNative.nodeNullCheck(
         ts,

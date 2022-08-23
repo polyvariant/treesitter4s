@@ -16,8 +16,9 @@
 
 package org.polyvariant.treesitter4s.bindings.python;
 
+import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary;
 import com.sun.jna.*;
 
 public interface TreeSitterPython extends Library {
-	Pointer tree_sitter_python();
+	TreeSitterLibrary.Language tree_sitter_python();
 }

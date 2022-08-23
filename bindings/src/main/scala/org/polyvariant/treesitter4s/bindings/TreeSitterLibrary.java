@@ -38,23 +38,50 @@ public interface TreeSitterLibrary extends Library {
 		}
 	}
 
+	public static class Parser extends PointerType {
+		public Parser() {
+			super();
+		}
+
+		public Parser(Pointer p) {
+			super(p);
+		}
+	}
+
+	public static class Tree extends PointerType {
+		public Tree() {
+			super();
+		}
+
+		public Tree(Pointer p) {
+			super(p);
+		}
+	}
+
+	public static class Language extends PointerType {
+		public Language() {
+			super();
+		}
+
+		public Language(Pointer p) {
+			super(p);
+		}
+	}
+
 	// static
 
-	Pointer ts_parser_new();
+	Parser ts_parser_new();
 
 	// parser
-	void ts_parser_delete(Pointer parser);
+	void ts_parser_delete(Parser parser);
 
-	void ts_parser_set_language(Pointer parser, Pointer language);
+	void ts_parser_set_language(Parser parser, Language language);
 
-	Pointer ts_parser_parse_string_encoding(Pointer parser, Pointer oldTree, String string, Uint32_t length,
-			int encoding);
+	Tree ts_parser_parse_string_encoding(Parser parser, Pointer oldTree, String string, Uint32_t length, int encoding);
 
-	// tree
+	Node.ByValue ts_tree_root_node(Tree tree);
 
-	Node.ByValue ts_tree_root_node(Pointer tree);
-
-	void ts_tree_delete(Pointer tree);
+	void ts_tree_delete(Tree tree);
 
 	// This method is redundant, because each tree carries
 	// a Scala reference to its language already.
