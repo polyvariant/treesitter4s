@@ -24,7 +24,7 @@ trait TreeSitter {
     source: String,
     language: Language,
     encoding: Encoding,
-  ): Tree[Language]
+  ): Tree
 
 }
 
@@ -39,15 +39,14 @@ object Encoding {
   case object UTF16 extends Encoding
 }
 
-trait Tree[Language] {
+trait Tree {
   def rootNode: Option[Node]
-  def language: Language
 }
 
 trait Node {
   def text: String
   def tpe: String
   def children: List[Node]
-  def getStartByte: Int
-  def getEndByte: Int
+  def startByte: Int
+  def endByte: Int
 }

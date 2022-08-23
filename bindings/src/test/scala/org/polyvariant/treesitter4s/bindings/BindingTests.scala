@@ -81,8 +81,8 @@ object BindingTests extends SimpleIOSuite {
 
       (
         assert.eql(rootNode.text, expected) &&
-          assert.eql(rootNode.getStartByte, 0) &&
-          assert.eql(rootNode.getEndByte, 14)
+          assert.eql(rootNode.startByte, 0) &&
+          assert.eql(rootNode.endByte, 14)
       )
         .pure[IO]
     }

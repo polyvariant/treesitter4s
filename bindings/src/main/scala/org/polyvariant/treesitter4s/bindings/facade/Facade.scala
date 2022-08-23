@@ -33,26 +33,15 @@ private[bindings] object Facade {
     new TreeSitter {
       type Language = LanguageRef
 
-      private def wrapTree(treePointer: Pointer, originalLanguage: Language): Tree[Language] =
-        new Tree[LanguageRef] {
-
-          val rootNode: Option[treesitter4s.Node] = fromNative.nodeNullCheck(
-            ts,
-            ts.ts_tree_root_node(treePointer),
-          )
-
-          val language: LanguageRef = originalLanguage
-        }
-
       private def mkParser() = ts.ts_parser_new()
 
       def parse(
         source: String,
         language: LanguageRef,
         encoding: treesitter4s.Encoding,
-      ): Tree[LanguageRef] = {
+      ): Tree = {
 
-        def mkTree(parserPointer: Pointer) = {
+        def mkTree(parserPointer: Pointer): Pointer = {
           ts.ts_parser_set_language(parserPointer, language.pointer)
 
           ts.ts_parser_parse_string_encoding(
@@ -64,13 +53,11 @@ private[bindings] object Facade {
           )
         }
 
-        val originalLanguage = language
-
         val parserPointer = mkParser()
 
         try {
           val tree = mkTree(parserPointer)
-          try wrapTree(tree, originalLanguage)
+          try fromNative.tree(ts, tree)
           finally ts.ts_tree_delete(tree)
         } finally ts.ts_parser_delete(parserPointer)
 
@@ -99,22 +86,39 @@ private[bindings] object Facade {
       )
 
     def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
-      new treesitter4s.Node {
-        val text: String = ts.ts_node_string(underlying)
-
-        val children: List[treesitter4s.Node] =
+      NodeImpl(
+        text = ts.ts_node_string(underlying),
+        children =
           List.tabulate(ts.ts_node_child_count(underlying).intValue()) { i =>
             fromNative.node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i)))
-          }
+          },
+        tpe = ts.ts_node_type(underlying),
+        startByte = ts.ts_node_start_byte(underlying).intValue(),
+        endByte = ts.ts_node_end_byte(underlying).intValue(),
+      )
 
-        val tpe: String = ts.ts_node_type(underlying)
-
-        val getStartByte: Int = ts.ts_node_start_byte(underlying).intValue()
-
-        val getEndByte: Int = ts.ts_node_end_byte(underlying).intValue()
-
-      }
+    def tree(
+      ts: TreeSitterLibrary,
+      treePointer: Pointer,
+    ): Tree = TreeImpl(
+      rootNode = fromNative.nodeNullCheck(
+        ts,
+        ts.ts_tree_root_node(treePointer),
+      )
+    )
 
   }
 
 }
+
+private[bindings] case class TreeImpl(
+  rootNode: Option[treesitter4s.Node]
+) extends Tree
+
+private[bindings] case class NodeImpl(
+  text: String,
+  tpe: String,
+  children: List[treesitter4s.Node],
+  startByte: Int,
+  endByte: Int,
+) extends treesitter4s.Node
