@@ -94,8 +94,8 @@ private[bindings] object Facade {
         //   fromNative.node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i)))
         // },
         // tpe = ts.ts_node_type(underlying),
-        startByte = ts.ts_node_start_byte(underlying).intValue(),
-        endByte = ts.ts_node_end_byte(underlying).intValue(),
+        startByte = ts.ts_node_start_byte(underlying).longValue(),
+        endByte = ts.ts_node_end_byte(underlying).longValue(),
       )
 
     def tree(
@@ -120,8 +120,8 @@ private[bindings] case class NodeImpl(
   // text: String,
   // tpe: String,
   children: List[treesitter4s.Node],
-  startByte: Int,
-  endByte: Int,
+  startByte: Long,
+  endByte: Long,
 ) extends treesitter4s.Node {
   def text: String = ???
 

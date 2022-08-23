@@ -47,6 +47,6 @@ trait Node {
   def text: String
   def tpe: String
   def children: List[Node]
-  def startByte: Int
-  def endByte: Int
+  def startByte: Long
+  def endByte: Long
 }
