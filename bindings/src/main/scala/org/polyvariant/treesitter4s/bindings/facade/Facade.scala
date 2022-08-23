@@ -39,8 +39,9 @@ private[bindings] object Facade {
         source: String,
         language: LanguageRef,
         encoding: treesitter4s.Encoding,
-      ): Resource[F, Tree] = {
+      ): Resource[F, Tree[LanguageRef]] = {
 
+        val originalLanguage = language
         val parserRes: Resource[F, Pointer] =
           Resource.make(Sync[F].delay(ts.ts_parser_new()))(p =>
             Sync[F].delay(ts.ts_parser_delete(p))
@@ -65,12 +66,13 @@ private[bindings] object Facade {
         parserRes
           .flatMap(alloc)
           .map { treePointer =>
-            new Tree {
+            new Tree[LanguageRef] {
               def rootNode: Option[treesitter4s.Node] = fromNative.nodeNullCheck(
                 ts,
                 ts.ts_tree_root_node(treePointer),
               )
 
+              val language: LanguageRef = originalLanguage
             }
           }
 
@@ -110,6 +112,8 @@ private[bindings] object Facade {
             None
 
         def getString: String = ts.ts_node_string(underlying)
+
+        def tpe: String = ts.ts_node_type(underlying)
       }
 
   }

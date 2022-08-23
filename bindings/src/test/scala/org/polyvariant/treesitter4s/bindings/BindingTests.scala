@@ -25,7 +25,7 @@ import weaver._
 object BindingTests extends SimpleIOSuite {
   val ts = Bindings.make[IO]()
 
-  def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF16)
+  def parseExample(s: String) = ts.parse(s, ScalaLanguageBindings.scala, Encoding.UTF8)
 
   test("root node child count") {
 
@@ -51,7 +51,7 @@ object BindingTests extends SimpleIOSuite {
     }
   }
 
-  test("root node string") {
+  test("root node string, type") {
     ignore("debugging linux and the string method seems to be sus") *>
       parseExample("class Hello {}").use { tree =>
         val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
@@ -59,8 +59,9 @@ object BindingTests extends SimpleIOSuite {
         val expected =
           "(compilation_unit (class_definition name: (identifier) body: (template_body)))"
 
-        assert
-          .eql(rootNode.getString, expected)
+        (assert
+          .eql(rootNode.getString, expected) &&
+          assert.eql(rootNode.tpe, "compilation_unit"))
           .pure[IO]
       }
   }

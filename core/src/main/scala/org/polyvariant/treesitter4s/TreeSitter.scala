@@ -26,7 +26,7 @@ trait TreeSitter[F[_]] {
     source: String,
     language: Language,
     encoding: Encoding,
-  ): Resource[F, Tree]
+  ): Resource[F, Tree[Language]]
 
 }
 
@@ -37,12 +37,14 @@ object Encoding {
   case object UTF16 extends Encoding
 }
 
-trait Tree {
+trait Tree[Language] {
   def rootNode: Option[Node]
+  def language: Language
 }
 
 trait Node {
   def getString: String
+  def tpe: String
   def childCount: Int
   def getChild(i: Int): Option[Node]
 }
