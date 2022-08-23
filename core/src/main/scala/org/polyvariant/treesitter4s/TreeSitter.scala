@@ -47,4 +47,6 @@ trait Node {
   def tpe: String
   def childCount: Int
   def getChild(i: Int): Option[Node]
+  def getStartByte: Int
+  def getEndByte: Int
 }

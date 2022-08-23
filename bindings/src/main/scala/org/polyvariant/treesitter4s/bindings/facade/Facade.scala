@@ -114,6 +114,11 @@ private[bindings] object Facade {
         def getString: String = ts.ts_node_string(underlying)
 
         def tpe: String = ts.ts_node_type(underlying)
+
+        def getStartByte: Int = ts.ts_node_start_byte(underlying).intValue()
+
+        def getEndByte: Int = ts.ts_node_end_byte(underlying).intValue()
+
       }
 
   }

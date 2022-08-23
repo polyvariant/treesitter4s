@@ -66,6 +66,10 @@ public interface TreeSitterLibrary extends Library {
 
 	String ts_node_type(Node node);
 
+	Uint32_t ts_node_start_byte(Node node);
+
+	Uint32_t ts_node_end_byte(Node node);
+
 	Node.ByValue ts_node_child(Node node, Uint32_t index);
 
 	boolean ts_node_is_null(Node node);
