@@ -17,3 +17,7 @@ chmod +w "bindings/src/main/resources/libtree-sitter.$SUFFIX"
 nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-scala"
 cp -L result/parser "bindings/src/main/resources/tree-sitter-scala.$SUFFIX"
 chmod +w "bindings/src/main/resources/tree-sitter-scala.$SUFFIX"
+
+nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.tree-sitter-python"
+cp -L result/parser "bindings/src/main/resources/tree-sitter-python.$SUFFIX"
+chmod +w "bindings/src/main/resources/tree-sitter-python.$SUFFIX"

@@ -49,10 +49,6 @@ object ScalaLanguageBindings {
   private val libName = {
     val os = System.getProperty("os.name")
 
-    // if (os.toLowerCase().contains("mac"))
-    //   "/treesitter.dylib"
-    // else if (os.toLowerCase().contains("linux"))
-    //   "/treesitter.so"
     if (os.toLowerCase().contains("mac"))
       "/tree-sitter-scala.dylib"
     else if (os.toLowerCase().contains("linux"))
@@ -68,5 +64,28 @@ object ScalaLanguageBindings {
     )
 
   def scala: LanguageRef = LanguageRef(LIBRARY.tree_sitter_scala())
+
+}
+
+object PythonLanguageBindings {
+
+  private val libName = {
+    val os = System.getProperty("os.name")
+
+    if (os.toLowerCase().contains("mac"))
+      "/tree-sitter-python.dylib"
+    else if (os.toLowerCase().contains("linux"))
+      "/tree-sitter-python.so"
+    else
+      sys.error(s"Unsupported system: $os")
+  }
+
+  private val LIBRARY: TreeSitterPython = Native
+    .load[TreeSitterPython](
+      Native.extractFromResourcePath(libName).toString(),
+      classOf[TreeSitterPython],
+    )
+
+  def python: LanguageRef = LanguageRef(LIBRARY.tree_sitter_python())
 
 }
