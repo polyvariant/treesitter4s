@@ -16,17 +16,23 @@
 
 package org.polyvariant.treesitter4s.bindings.scala
 
+import com.sun.jna.Library
 import com.sun.jna.Native
+import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.Language
 
 object ScalaLanguageBindings {
 
-  private val LIBRARY: TreeSitterScala = Native
+  private trait Bindings extends Library {
+    def tree_sitter_scala: TreeSitterLibrary.Language
+  }
+
+  private val LIBRARY: Bindings = Native
     .load(
       "tree-sitter-scala",
-      classOf[TreeSitterScala],
+      classOf[Bindings],
     )
 
-  val Scala: Language = LIBRARY.tree_sitter_scala()
+  val Scala: Language = LIBRARY.tree_sitter_scala
 
 }
