@@ -28,7 +28,7 @@
 
           function renameLib() {
             # 1 - library path, 2 - library name, 3 - what depends on this
-            install_name_tool -change $1/lib/$2.dylib @rpath/$2.dylib $out/lib/$3.dylib
+            install_name_tool -change $1/lib/$2.dylib @loader_path/$2.dylib $out/lib/$3.dylib
           }
 
           copyLib ${pkgs.tree-sitter} libtree-sitter.0.0

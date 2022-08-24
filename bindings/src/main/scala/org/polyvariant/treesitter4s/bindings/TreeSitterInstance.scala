@@ -25,7 +25,7 @@ object TreeSitterInstance {
 
   private val LIBRARY: TreeSitterLibrary = Native
     .load(
-      "tree-sitter",
+      "tree-sitter.0.0",
       classOf[TreeSitterLibrary],
     )
 
