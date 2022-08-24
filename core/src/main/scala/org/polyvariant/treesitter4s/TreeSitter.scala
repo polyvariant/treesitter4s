@@ -18,18 +18,11 @@ package org.polyvariant.treesitter4s
 
 trait TreeSitter {
 
-  type Language
-
   def parse(
     source: String,
-    language: Language,
     encoding: Encoding,
   ): Tree
 
-}
-
-object TreeSitter {
-  type Aux[L] = TreeSitter { type Language = L }
 }
 
 sealed trait Encoding extends Product with Serializable

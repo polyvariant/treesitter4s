@@ -17,7 +17,7 @@
 package org.polyvariant.treesitter4s.bindings.python
 
 import com.sun.jna.Native
-import org.polyvariant.treesitter4s.bindings.LanguageRef
+import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.Language
 
 object PythonLanguageBindings {
 
@@ -27,6 +27,6 @@ object PythonLanguageBindings {
       classOf[TreeSitterPython],
     )
 
-  val Python: LanguageRef = LanguageRef(LIBRARY.tree_sitter_python())
+  val Python: Language = LIBRARY.tree_sitter_python()
 
 }

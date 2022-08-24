@@ -19,8 +19,9 @@ package org.polyvariant.treesitter4s.bindings
 import com.sun.jna.Native
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.facade.Facade
+import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.Language
 
-object Bindings {
+object TreeSitterInstance {
 
   private val LIBRARY: TreeSitterLibrary = Native
     .load(
@@ -28,6 +29,6 @@ object Bindings {
       classOf[TreeSitterLibrary],
     )
 
-  val instance: TreeSitter.Aux[LanguageRef] = Facade.make(LIBRARY)
+  def make(language: Language): TreeSitter = Facade.make(language, LIBRARY)
 
 }

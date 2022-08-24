@@ -17,7 +17,7 @@
 package org.polyvariant.treesitter4s.bindings.scala
 
 import com.sun.jna.Native
-import org.polyvariant.treesitter4s.bindings.LanguageRef
+import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.Language
 
 object ScalaLanguageBindings {
 
@@ -27,6 +27,6 @@ object ScalaLanguageBindings {
       classOf[TreeSitterScala],
     )
 
-  val Scala: LanguageRef = LanguageRef(LIBRARY.tree_sitter_scala())
+  val Scala: Language = LIBRARY.tree_sitter_scala()
 
 }

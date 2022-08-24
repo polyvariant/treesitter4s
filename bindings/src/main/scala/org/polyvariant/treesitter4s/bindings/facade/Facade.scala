@@ -21,28 +21,26 @@ import org.polyvariant.treesitter4s.Encoding.UTF16
 import org.polyvariant.treesitter4s.Encoding.UTF8
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
-import org.polyvariant.treesitter4s.bindings.LanguageRef
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
 import java.nio.charset.StandardCharsets
 
 private[bindings] object Facade {
 
   def make(
-    ts: TreeSitterLibrary
-  ): TreeSitter.Aux[LanguageRef] =
+    language: TreeSitterLibrary.Language,
+    ts: TreeSitterLibrary,
+  ): TreeSitter =
     new TreeSitter {
-      type Language = LanguageRef
 
       private def mkParser() = ts.ts_parser_new()
 
       def parse(
         source: String,
-        language: LanguageRef,
         encoding: treesitter4s.Encoding,
       ): Tree = {
 
         def mkTree(parserPointer: TreeSitterLibrary.Parser): TreeSitterLibrary.Tree = {
-          ts.ts_parser_set_language(parserPointer, language.pointer)
+          ts.ts_parser_set_language(parserPointer, language)
 
           val sourceBytes = source.getBytes(StandardCharsets.UTF_8)
           ts.ts_parser_parse_string_encoding(
