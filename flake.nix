@@ -5,7 +5,7 @@
   outputs = { nixpkgs, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
     let pkgs = import nixpkgs { inherit system; }; in
     {
-      devShells.default = pkgs.mkShell { packages = [ pkgs.nodejs ]; };
+      devShells.default = pkgs.mkShell { packages = [ pkgs.nodejs pkgs.sbt ]; };
 
       packages.binaries = pkgs.stdenv.mkDerivation {
         name = "binaries";
