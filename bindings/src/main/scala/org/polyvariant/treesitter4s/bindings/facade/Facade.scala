@@ -47,7 +47,7 @@ private[bindings] object Facade {
             parserPointer,
             null /* old tree */,
             sourceBytes,
-            sourceBytes.length.toLong,
+            new treesitter4s.bindings.Uint32_t(sourceBytes.length.toLong),
             toNative.encoding(encoding),
           )
         }
@@ -92,7 +92,7 @@ private[bindings] object Facade {
         children =
           List.tabulate(ts.ts_node_child_count(underlying).intValue()) { i =>
             fromNative
-              .node(ts, ts.ts_node_child(underlying, i.toLong))
+              .node(ts, ts.ts_node_child(underlying, new treesitter4s.bindings.Uint32_t(i.toLong)))
           },
         tpe = ts.ts_node_type(underlying),
         startByte = ts.ts_node_start_byte(underlying).longValue(),
