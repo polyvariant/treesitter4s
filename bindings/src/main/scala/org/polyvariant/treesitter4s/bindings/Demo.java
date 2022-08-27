@@ -13,7 +13,7 @@ public class Demo {
 		ts.ts_parser_set_language(p, scala);
 
 		Tree t = ts.ts_parser_parse_string_encoding(p, null, "class Hello".getBytes(), "class Hello".length(),
-				0/* utf8 */);
+				1/* utf16 */);
 
 		Node.ByValue n = ts.ts_tree_root_node(t);
 
