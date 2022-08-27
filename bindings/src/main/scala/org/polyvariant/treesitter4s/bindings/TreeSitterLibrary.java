@@ -25,13 +25,12 @@ public interface TreeSitterLibrary extends Library {
 	// todo: extensible for languages
 	// long tree_sitter_scala();
 
-	@FieldOrder({ "tree", "id", "context3", "context2", "context1", "context0" })
+	@FieldOrder({ "context0", "context1", "context2", "context3", "id", "tree" })
 	public static class Node extends Structure {
 		public long context0;
 		public long context1;
 		public long context2;
 		public long context3;
-
 		public Pointer id;
 		public Pointer tree;
 
