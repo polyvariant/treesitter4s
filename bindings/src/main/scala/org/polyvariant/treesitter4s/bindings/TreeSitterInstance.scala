@@ -23,7 +23,8 @@ import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.Language
 
 object TreeSitterInstance {
 
-  private val LIBRARY: TreeSitterLibrary = Native
+  /* private */
+  val LIBRARY: TreeSitterLibrary = Native
     .load(
       "tree-sitter.0.0",
       classOf[TreeSitterLibrary],

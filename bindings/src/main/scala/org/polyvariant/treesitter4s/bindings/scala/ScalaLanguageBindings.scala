@@ -23,11 +23,13 @@ import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.Language
 
 object ScalaLanguageBindings {
 
-  private trait Bindings extends Library {
+  /* private  */
+  trait Bindings extends Library {
     def tree_sitter_scala: TreeSitterLibrary.Language
   }
 
-  private val LIBRARY: Bindings = Native
+  /* private */
+  val LIBRARY: Bindings = Native
     .load(
       "tree-sitter-scala",
       classOf[Bindings],
