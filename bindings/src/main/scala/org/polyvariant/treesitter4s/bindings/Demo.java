@@ -12,8 +12,8 @@ public class Demo {
 		Parser p = ts.ts_parser_new();
 		ts.ts_parser_set_language(p, scala);
 
-		Tree t = ts.ts_parser_parse_string_encoding(p, null, "class Hello".getBytes(), "class Hello".length(),
-				1/* utf16 */);
+		byte[] bytes = "class Hello".getBytes(java.nio.charset.StandardCharsets.UTF_16);
+		Tree t = ts.ts_parser_parse_string_encoding(p, null, bytes, bytes.length, 1/* utf16 */);
 
 		Node.ByValue n = ts.ts_tree_root_node(t);
 
