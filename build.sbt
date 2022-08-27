@@ -32,11 +32,16 @@ val commonSettings = Seq(
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
 )
 
+val commonJVMSettings = Seq(
+  javacOptions ++= Seq("-source", "8", "-target", "8")
+)
+
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .settings(
     commonSettings
   )
+  .jvmSettings(commonJVMSettings)
 
 lazy val bindings = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
@@ -47,6 +52,7 @@ lazy val bindings = crossProject(JVMPlatform)
     ),
   )
   .dependsOn(core)
+  .jvmSettings(commonJVMSettings)
 
 lazy val root = tlCrossRootProject
   .aggregate(core, bindings)
