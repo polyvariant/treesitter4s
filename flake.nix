@@ -78,8 +78,15 @@
       packages.x86_64-linux.ts-python =
         let pkgs = import nixpkgs { system = "x86_64-linux"; }; in
         pkgs.tree-sitter-grammars.tree-sitter-python;
+
+      packages.aarch64-linux.ts =
+        let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
+        pkgs.tree-sitter;
       packages.aarch64-linux.ts-scala =
         let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
         pkgs.tree-sitter-grammars.tree-sitter-scala;
+      packages.aarch64-linux.ts-python =
+        let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
+        pkgs.tree-sitter-grammars.tree-sitter-python;
     };
 }
