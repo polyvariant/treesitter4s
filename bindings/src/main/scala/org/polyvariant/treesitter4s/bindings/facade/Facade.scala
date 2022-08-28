@@ -40,12 +40,11 @@ private[bindings] object Facade {
           ts.ts_parser_set_language(parserPointer, language)
 
           val sourceBytes = source.getBytes(StandardCharsets.UTF_8)
-          ts.ts_parser_parse_string_encoding(
+          ts.ts_parser_parse_string(
             parserPointer,
             null /* old tree */,
             sourceBytes,
             new treesitter4s.bindings.Uint32_t(sourceBytes.length.toLong),
-            0, /* utf-8 */
           )
         }
 

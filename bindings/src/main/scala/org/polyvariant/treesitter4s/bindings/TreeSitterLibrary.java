@@ -78,7 +78,7 @@ public interface TreeSitterLibrary extends Library {
 
 	void ts_parser_set_language(Parser parser, Language language);
 
-	Tree ts_parser_parse_string_encoding(Parser parser, Pointer oldTree, byte[] string, Uint32_t length, int encoding);
+	Tree ts_parser_parse_string(Parser parser, Pointer oldTree, byte[] string, Uint32_t length);
 
 	// tree
 
