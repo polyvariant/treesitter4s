@@ -13,7 +13,7 @@ public class Demo {
 		ts.ts_parser_set_language(p, scala);
 
 		byte[] bytes = "class Hello\n\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
-		Tree t = ts.ts_parser_parse_string(p, null, bytes, new Uint32_t(bytes.length));
+		Tree t = ts.ts_parser_parse_string(p, null, bytes, bytes.length);
 
 		Node n = ts.ts_tree_root_node(t);
 
