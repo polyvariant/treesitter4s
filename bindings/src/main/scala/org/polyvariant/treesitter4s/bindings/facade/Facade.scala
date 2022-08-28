@@ -68,9 +68,10 @@ private[bindings] object Facade {
       ts: TreeSitterLibrary,
       node: TreeSitterLibrary.Node,
     ): Option[treesitter4s.Node] =
-      Option.unless(ts.ts_node_is_null(node))(
-        fromNative.node(ts, node)
-      )
+      if (ts.ts_node_is_null(node))
+        None
+      else
+        Some(fromNative.node(ts, node))
 
     def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
       NodeImpl(

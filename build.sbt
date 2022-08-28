@@ -13,11 +13,12 @@ val compilerPlugins = List(
   crossPlugin("org.polyvariant" % "better-tostring" % "0.3.16")
 )
 
+val Scala212 = "2.12.15"
 val Scala213 = "2.13.8"
 val Scala3 = "3.1.3"
 
 ThisBuild / scalaVersion := Scala213
-ThisBuild / crossScalaVersions := Seq(Scala213, Scala3)
+ThisBuild / crossScalaVersions := Seq(Scala212, Scala213, Scala3)
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
