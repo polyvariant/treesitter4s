@@ -69,11 +69,17 @@
         }) // {
       packages.aarch64-darwin.binaries = mkDarwinBinaries "aarch64-darwin";
       packages.x86_64-darwin.binaries = mkDarwinBinaries "x86_64-darwin";
-      packages.x86_64-linux.binaries =
+      packages.x86_64-linux.ts =
+        let pkgs = import nixpkgs { system = "x86_64-linux"; }; in
+        pkgs.tree-sitter;
+      packages.x86_64-linux.ts-scala =
         let pkgs = import nixpkgs { system = "x86_64-linux"; }; in
         pkgs.tree-sitter-grammars.tree-sitter-scala;
-      packages.aarch64-linux.binaries =
+      packages.x86_64-linux.ts-python =
+        let pkgs = import nixpkgs { system = "x86_64-linux"; }; in
+        pkgs.tree-sitter-grammars.tree-sitter-python;
+      packages.aarch64-linux.ts-scala =
         let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
-        pkgs.tree-sitter-grammars.tree-sitter-sca qla;
+        pkgs.tree-sitter-grammars.tree-sitter-scala;
     };
 }

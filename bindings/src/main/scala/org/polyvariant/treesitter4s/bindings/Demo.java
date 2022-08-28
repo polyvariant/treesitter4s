@@ -34,9 +34,10 @@ public class Demo {
 		Node n = ts.ts_tree_root_node(t);
 
 		System.out.println(ts.ts_node_child_count(n));
-		// System.out.println(ts.ts_node_string(n));
-		// ts.ts_tree_delete(t);
-		// ts.ts_parser_delete(p);
+		String s = ts.ts_node_string(n);
+		ts.ts_tree_delete(t);
+		ts.ts_parser_delete(p);
+		System.out.println(s);
 
 	}
 }
