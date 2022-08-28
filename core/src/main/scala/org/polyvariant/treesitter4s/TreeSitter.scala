@@ -18,18 +18,8 @@ package org.polyvariant.treesitter4s
 
 trait TreeSitter {
 
-  def parse(
-    source: String,
-    encoding: Encoding,
-  ): Tree
+  def parse(source: String): Tree
 
-}
-
-sealed trait Encoding extends Product with Serializable
-
-object Encoding {
-  case object UTF8 extends Encoding
-  case object UTF16 extends Encoding
 }
 
 trait Tree {

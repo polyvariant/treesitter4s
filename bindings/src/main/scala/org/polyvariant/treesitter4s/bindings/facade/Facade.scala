@@ -17,8 +17,6 @@
 package org.polyvariant.treesitter4s.bindings.facade
 
 import org.polyvariant.treesitter4s
-import org.polyvariant.treesitter4s.Encoding.UTF16
-import org.polyvariant.treesitter4s.Encoding.UTF8
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
@@ -35,8 +33,7 @@ private[bindings] object Facade {
       private def mkParser() = ts.ts_parser_new()
 
       def parse(
-        source: String,
-        encoding: treesitter4s.Encoding,
+        source: String
       ): Tree = {
 
         def mkTree(parserPointer: TreeSitterLibrary.Parser): TreeSitterLibrary.Tree = {
@@ -48,7 +45,7 @@ private[bindings] object Facade {
             null /* old tree */,
             sourceBytes,
             new treesitter4s.bindings.Uint32_t(sourceBytes.length.toLong),
-            toNative.encoding(encoding),
+            0, /* utf-8 */
           )
         }
 
@@ -65,16 +62,6 @@ private[bindings] object Facade {
       }
 
     }
-
-  private object toNative {
-
-    def encoding(enc: treesitter4s.Encoding): Int =
-      enc match {
-        case UTF8  => 0
-        case UTF16 => 1
-      }
-
-  }
 
   private object fromNative {
 
