@@ -32,6 +32,12 @@ val commonSettings = Seq(
     "com.disneystreaming" %%% "weaver-scalacheck" % "0.7.15" % Test,
   ),
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+  scalacOptions ++= {
+    if (scalaVersion.value.startsWith("3"))
+      Seq("-Yscala-release", "3.1")
+    else
+      Nil
+  },
 )
 
 val commonJVMSettings = Seq(
