@@ -26,16 +26,13 @@ public interface TreeSitterLibrary extends Library {
 	// long tree_sitter_scala();
 
 	@FieldOrder({ "context0", "context1", "context2", "context3", "id", "tree" })
-	public static class Node extends Structure {
+	public static class Node extends Structure implements Structure.ByValue {
 		public Uint32_t context0;
 		public Uint32_t context1;
 		public Uint32_t context2;
 		public Uint32_t context3;
 		public Pointer id;
 		public Pointer tree;
-
-		public static class ByValue extends Node implements Structure.ByValue {
-		}
 	}
 
 	public static class Parser extends PointerType {
@@ -82,7 +79,7 @@ public interface TreeSitterLibrary extends Library {
 
 	// tree
 
-	Node.ByValue ts_tree_root_node(Tree tree);
+	Node ts_tree_root_node(Tree tree);
 
 	void ts_tree_delete(Tree tree);
 
@@ -100,7 +97,7 @@ public interface TreeSitterLibrary extends Library {
 
 	Uint32_t ts_node_end_byte(Node node);
 
-	Node.ByValue ts_node_child(Node node, Uint32_t index);
+	Node ts_node_child(Node node, Uint32_t index);
 
 	boolean ts_node_is_null(Node node);
 

@@ -15,7 +15,7 @@ public class Demo {
 		byte[] bytes = "class Hello\n\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
 		Tree t = ts.ts_parser_parse_string(p, null, bytes, new Uint32_t(bytes.length));
 
-		Node.ByValue n = ts.ts_tree_root_node(t);
+		Node n = ts.ts_tree_root_node(t);
 
 		System.out.println(ts.ts_node_child_count(n));
 		// System.out.println(ts.ts_node_string(n));
