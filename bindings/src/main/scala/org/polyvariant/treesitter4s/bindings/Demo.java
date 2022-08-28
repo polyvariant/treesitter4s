@@ -22,10 +22,11 @@ public class Demo {
 	public static void main(String[] args) {
 		TreeSitterLibrary ts = org.polyvariant.treesitter4s.bindings.TreeSitterInstance$.MODULE$.LIBRARY();
 
-		Language scala = org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings$.MODULE$.LIBRARY()
-				.tree_sitter_scala();
+		Language scala = org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings$.MODULE$.Scala();
+		Language python = org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings$.MODULE$.Python();
 
 		Parser p = ts.ts_parser_new();
+		ts.ts_parser_set_language(p, python);
 		ts.ts_parser_set_language(p, scala);
 
 		byte[] bytes = "class Hello\n\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);

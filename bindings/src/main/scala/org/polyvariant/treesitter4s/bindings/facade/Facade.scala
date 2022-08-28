@@ -53,7 +53,7 @@ private[bindings] object Facade {
         try {
           val tree = mkTree(parserPointer)
           try fromNative.tree(ts, tree)
-          // note: removing this delete fixes tests on Dotty.
+          // note: removing this delete fixes tests on Dotty (on aarch64-linux)
           // there's probably some memory we're not copying that we should
           finally ts.ts_tree_delete(tree)
         } finally ts.ts_parser_delete(parserPointer)

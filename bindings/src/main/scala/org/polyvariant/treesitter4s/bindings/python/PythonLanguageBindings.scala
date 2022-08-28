@@ -23,11 +23,13 @@ import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.Language
 
 object PythonLanguageBindings {
 
-  private trait Bindings extends Library {
+  private[python] trait Bindings extends Library {
     def tree_sitter_python: TreeSitterLibrary.Language
   }
 
-  private val LIBRARY: Bindings = Native.load("tree-sitter-python", classOf[Bindings])
+  // dev note: making this private causes segfaults when compiling under Scala 3.
+  // Perhaps this should be Java code instead (tbh that'd make the whole cross-compilation part much easier, given this is JVM-only)
+  private[python] val LIBRARY: Bindings = Native.load("tree-sitter-python", classOf[Bindings])
 
   val Python: Language = LIBRARY.tree_sitter_python
 }
