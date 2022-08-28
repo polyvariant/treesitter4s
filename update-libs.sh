@@ -2,21 +2,9 @@
 
 set -e
 
-function updateGrammar() {
-    SYSTEM="$1"
-    RESOURCE_DIR="$2"
-    SUFFIX="$3"
-    GRAMMAR="$4"
-
-    nix build "nixpkgs#legacyPackages.$SYSTEM.tree-sitter-grammars.$GRAMMAR"
-    cp -L result/parser "$RESOURCE_PATH/lib$GRAMMAR.$SUFFIX"
-    chmod +w "$RESOURCE_PATH/lib$GRAMMAR.$SUFFIX"
-}
-
 function update() {
     SYSTEM="$1"
     RESOURCE_DIR="$2"
-    SUFFIX="$3"
 
     nix build ".#packages.$SYSTEM.binaries"
 
