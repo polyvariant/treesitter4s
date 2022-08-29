@@ -55,16 +55,6 @@ public interface TreeSitterLibrary extends Library {
 		}
 	}
 
-	public static class Language extends PointerType {
-		public Language() {
-			super();
-		}
-
-		public Language(Pointer p) {
-			super(p);
-		}
-	}
-
 	// static
 
 	Parser ts_parser_new();

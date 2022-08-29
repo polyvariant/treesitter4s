@@ -20,12 +20,13 @@ import org.polyvariant.treesitter4s
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
+import org.polyvariant.treesitter4s.bindings.Language
 import java.nio.charset.StandardCharsets
 
 private[bindings] object Facade {
 
   def make(
-    language: TreeSitterLibrary.Language,
+    language: Language,
     ts: TreeSitterLibrary,
   ): TreeSitter =
     new TreeSitter {

@@ -22,8 +22,8 @@ public class Demo {
 	public static void main(String[] args) {
 		TreeSitterLibrary ts = org.polyvariant.treesitter4s.bindings.TreeSitterInstance$.MODULE$.LIBRARY();
 
-		Language scala = org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings$.MODULE$.Scala();
-		Language python = org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings$.MODULE$.Python();
+		Language scala = org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings.Scala;
+		Language python = org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings.Python;
 
 		Parser p = ts.ts_parser_new();
 		ts.ts_parser_set_language(p, python);

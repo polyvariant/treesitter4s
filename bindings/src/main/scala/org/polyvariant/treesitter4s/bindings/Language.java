@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings
+package org.polyvariant.treesitter4s.bindings;
 
-import com.sun.jna.Native
-import org.polyvariant.treesitter4s.TreeSitter
-import org.polyvariant.treesitter4s.bindings.facade.Facade
-import org.polyvariant.treesitter4s.bindings.Language
+import com.sun.jna.PointerType;
+import com.sun.jna.Pointer;
 
-object TreeSitterInstance {
+public class Language extends PointerType {
+	public Language() {
+		super();
+	}
 
-  /* private */
-  val LIBRARY: TreeSitterLibrary = Native
-    .load(
-      "tree-sitter.0.0",
-      classOf[TreeSitterLibrary],
-    )
-
-  def make(language: Language): TreeSitter = Facade.make(language, LIBRARY)
-
+	public Language(Pointer p) {
+		super(p);
+	}
 }
