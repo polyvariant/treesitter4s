@@ -26,12 +26,9 @@ public interface TreeSitterLibrary extends Library {
 	// todo: extensible for languages
 	// long tree_sitter_scala();
 
-	@FieldOrder({ "context0", "context1", "context2", "context3", "id", "tree" })
+	@FieldOrder({ "context", "id", "tree" })
 	public static class Node extends Structure implements Structure.ByValue {
-		public long context0;
-		public long context1;
-		public long context2;
-		public long context3;
+		public long[] context = new long[4];
 		public Pointer id;
 		public Pointer tree;
 	}
