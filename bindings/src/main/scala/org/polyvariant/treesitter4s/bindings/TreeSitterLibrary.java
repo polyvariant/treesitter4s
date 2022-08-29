@@ -72,6 +72,10 @@ public interface TreeSitterLibrary extends Library {
 
 	Node ts_tree_root_node(Tree tree);
 
+	long ts_language_version(Language language);
+
+	long ts_language_symbol_count(Language language);
+
 	void ts_tree_delete(Tree tree);
 
 	// This method is redundant, because each tree carries

@@ -28,5 +28,18 @@ libraryDependencies ++= Seq(
 ## Goals
 
 - **immutable**, read-only, Scala-friendly API
-- ~~decent performance~~
+- complete, 1-1 native/Java interface via [JNA](https://github.com/java-native-access/jna)
+- binary convenience: no dealing with native libraries if you're on a supported system
 - extensible language support
+
+## Supported systems
+
+Support can vary, but the following platforms are considered supported:
+
+- macOS x86_64
+- macOS aarch64
+- Linux x86_64
+- Linux aarch64
+
+CI runs on x86_64 macOS/Linux machines. Development is currently done on an aarch64 Mac.
+linux-aarch64 binaries are included thanks to the magic of [Nix](https://nixos.org/) and [Nixbuild](https://nixbuild.net/), but the library isn't being tested on that platform.

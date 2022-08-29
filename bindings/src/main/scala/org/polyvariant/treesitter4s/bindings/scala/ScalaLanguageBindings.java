@@ -17,6 +17,7 @@
 package org.polyvariant.treesitter4s.bindings.scala;
 
 import com.sun.jna.Library;
+import com.sun.jna.NativeLibrary;
 import com.sun.jna.Native;
 import org.polyvariant.treesitter4s.bindings.kernel.Language;
 
@@ -26,8 +27,7 @@ public class ScalaLanguageBindings {
 		Language tree_sitter_scala();
 	}
 
-	// See PythonLanguageBindings for a note on why this can't be private
-	/* private */
+	// todo: final?
 	private static Bindings LIBRARY = Native.load("tree-sitter-scala", Bindings.class);
 
 	public static Language Scala = LIBRARY.tree_sitter_scala();
