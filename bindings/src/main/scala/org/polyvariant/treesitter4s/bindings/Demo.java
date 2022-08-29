@@ -17,6 +17,7 @@
 package org.polyvariant.treesitter4s.bindings;
 
 import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary.*;
+import org.polyvariant.treesitter4s.bindings.kernel.Language;
 
 public class Demo {
 	public static void main(String[] args) {

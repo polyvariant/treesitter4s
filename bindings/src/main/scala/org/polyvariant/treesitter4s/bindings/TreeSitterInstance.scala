@@ -19,7 +19,7 @@ package org.polyvariant.treesitter4s.bindings
 import com.sun.jna.Native
 import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.facade.Facade
-import org.polyvariant.treesitter4s.bindings.Language
+import org.polyvariant.treesitter4s.bindings.kernel.Language
 
 object TreeSitterInstance {
 

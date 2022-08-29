@@ -18,6 +18,7 @@ package org.polyvariant.treesitter4s.bindings;
 
 import com.sun.jna.*;
 import com.sun.jna.Structure.FieldOrder;
+import org.polyvariant.treesitter4s.bindings.kernel.Language;
 
 // todo: this could be a separate library (independent of Scala versions)
 public interface TreeSitterLibrary extends Library {

@@ -18,7 +18,7 @@ package org.polyvariant.treesitter4s.bindings.scala;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import org.polyvariant.treesitter4s.bindings.Language;
+import org.polyvariant.treesitter4s.bindings.kernel.Language;
 
 public class ScalaLanguageBindings {
 

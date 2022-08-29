@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings;
+package org.polyvariant.treesitter4s.bindings.kernel;
 
 import com.sun.jna.PointerType;
 import com.sun.jna.Pointer;
