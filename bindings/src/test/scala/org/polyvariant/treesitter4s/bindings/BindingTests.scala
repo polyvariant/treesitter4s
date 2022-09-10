@@ -23,6 +23,7 @@ import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
 
 object BindingTests extends FunSuite {
+  TreeSitterInstance.unsafePrep()
   val tsScala = TreeSitterInstance.make(ScalaLanguageBindings.Scala)
   val tsPython = TreeSitterInstance.make(PythonLanguageBindings.Python)
 
