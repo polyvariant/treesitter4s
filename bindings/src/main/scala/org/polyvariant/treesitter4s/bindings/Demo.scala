@@ -16,15 +16,14 @@
 
 package org.polyvariant.treesitter4s.bindings;;
 
+import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
+
 object Demo {
 
   def main(args: Array[String]): Unit = {
-    TreeSitterInstance.unsafePrep()
-
     val ts = TreeSitterInstance.LIBRARY
 
-    val scala = org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings.Scala;
-    System.out.println(ts.ts_language_symbol_count(scala));
+    System.out.println(ts.ts_language_symbol_count(ScalaLanguageBindings.Scala));
   }
 
 }

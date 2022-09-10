@@ -21,38 +21,16 @@ import org.polyvariant.treesitter4s.TreeSitter
 import org.polyvariant.treesitter4s.bindings.facade.Facade
 import org.polyvariant.treesitter4s.bindings.kernel.Language
 
-import java.nio.file.Files
-
 object TreeSitterInstance {
 
-  // this will have to be called around the initialization time of the libraries.
-  // It'll have to either be a separate call (which users could wrap in a IO.blocking call)
-  // or somehow be built into the API (the Scala API, if it involves cats-effect-kernel, could build it into a DSL).
-  def unsafePrep(): Unit = {
-    val cl = getClass().getClassLoader()
-
-    def loadLibFromCL(name: String) = {
-      val resStream = cl.getResourceAsStream(s"darwin-aarch64/$name")
-
-      val parent = Files.createTempDirectory("treesitter4s")
-
-      val tf = parent.resolve(name)
-      Files.copy(resStream, tf)
-      tf.toFile.deleteOnExit()
-
-      System.load(tf.toString());
-    }
-
-    loadLibFromCL("libc++abi.1.dylib")
-    loadLibFromCL("libc++.1.0.dylib")
-  }
-
   /* private */
-  lazy val LIBRARY: TreeSitterLibrary = Native
+  val LIBRARY: TreeSitterLibrary = Native
     .load(
       "tree-sitter.0.0",
       classOf[TreeSitterLibrary],
     )
+
+  TreeSitterLanguages.unsafePrep()
 
   def make(language: Language): TreeSitter = Facade.make(language, LIBRARY)
 
