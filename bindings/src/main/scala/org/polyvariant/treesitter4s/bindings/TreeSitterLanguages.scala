@@ -1,6 +1,7 @@
 package org.polyvariant.treesitter4s.bindings
 
 import java.nio.file.Files
+import com.sun.jna.Platform
 
 object TreeSitterLanguages {
 
@@ -10,21 +11,23 @@ object TreeSitterLanguages {
     val cl = getClass().getClassLoader()
 
     def loadLibFromCL(name: String) = {
-      val resStream = cl.getResourceAsStream(s"darwin-aarch64/$name")
+      val platformName = System.mapLibraryName(name)
+
+      val resStream = cl.getResourceAsStream(
+        s"${Platform.RESOURCE_PREFIX}/$platformName"
+      )
 
       val parent = Files.createTempDirectory("treesitter4s")
 
-      val tf = parent.resolve(name)
+      val tf = parent.resolve(platformName)
       Files.copy(resStream, tf)
       tf.toFile.deleteOnExit()
 
       System.load(tf.toString());
     }
 
-    loadLibFromCL("libc++abi.1.dylib")
-    loadLibFromCL("libc++.1.0.dylib")
+    loadLibFromCL("c++abi.1")
+    loadLibFromCL("c++.1.0")
   }
 
-  // Singleton execution of unsafePrep
-  val Require: Unit = unsafePrep()
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings;;
+package org.polyvariant.treesitter4s.bindings
 
 import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 

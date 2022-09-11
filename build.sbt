@@ -62,8 +62,35 @@ lazy val bindings = crossProject(JVMPlatform)
   .dependsOn(core)
   .jvmSettings(commonJVMSettings)
 
+lazy val bindingsScala = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .settings(
+    name := "bindings-scala",
+    commonSettings,
+  )
+  .dependsOn(bindings)
+  .jvmSettings(commonJVMSettings)
+
+lazy val bindingsPython = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .settings(
+    name := "bindings-python",
+    commonSettings,
+  )
+  .dependsOn(bindings)
+  .jvmSettings(commonJVMSettings)
+
+lazy val tests = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .settings(
+    commonSettings
+  )
+  .dependsOn(bindingsScala, bindingsPython)
+  .jvmSettings(commonJVMSettings)
+  .enablePlugins(NoPublishPlugin)
+
 lazy val root = tlCrossRootProject
-  .aggregate(core, bindings)
+  .aggregate(core, bindings, bindingsScala, bindingsPython, tests)
   .settings(
     Compile / doc / sources := Seq(),
     sonatypeProfileName := "org.polyvariant",
