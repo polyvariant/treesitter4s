@@ -21,9 +21,9 @@ import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 object Demo {
 
   def main(args: Array[String]): Unit = {
-    val ts = TreeSitterInstance.LIBRARY
+    val ts = TreeSitterInstance.make(ScalaLanguageBindings.Scala)
 
-    System.out.println(ts.ts_language_symbol_count(ScalaLanguageBindings.Scala));
+    System.out.println(ts.parse("""class A""").rootNode.map(_.tpe))
   }
 
 }

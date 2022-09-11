@@ -26,8 +26,8 @@ public class PythonLanguageBindings {
 		Language tree_sitter_python();
 	}
 
-	private static Bindings LIBRARY = Native.load("tree-sitter-python", Bindings.class);
+	private static final Bindings LIBRARY = Native.load("tree-sitter-python", Bindings.class);
 
-	public static Language Python = LIBRARY.tree_sitter_python();
+	public static final Language Python = LIBRARY.tree_sitter_python();
 
 }

@@ -27,9 +27,8 @@ public class ScalaLanguageBindings {
 		Language tree_sitter_scala();
 	}
 
-	// todo: final?
-	private static Bindings LIBRARY = Native.load("tree-sitter-scala", Bindings.class);
+	private static final Bindings LIBRARY = Native.load("tree-sitter-scala", Bindings.class);
 
-	public static Language Scala = LIBRARY.tree_sitter_scala();
+	public static final Language Scala = LIBRARY.tree_sitter_scala();
 
 }
