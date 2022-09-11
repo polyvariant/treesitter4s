@@ -10,7 +10,7 @@ ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "macos-latest")
 def crossPlugin(x: sbt.librarymanagement.ModuleID) = compilerPlugin(x.cross(CrossVersion.full))
 
 val compilerPlugins = List(
-  crossPlugin("org.polyvariant" % "better-tostring" % "0.3.16")
+  crossPlugin("org.polyvariant" % "better-tostring" % "0.3.17")
 )
 
 val Scala212 = "2.12.15"
