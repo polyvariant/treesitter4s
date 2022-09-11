@@ -26,24 +26,26 @@ object TreeSitterLanguages {
   def unsafePrep(): Unit = {
     val cl = getClass().getClassLoader()
 
-    def loadLibFromCL(name: String) = {
-      val platformName = System.mapLibraryName(name)
-
-      val resStream = cl.getResourceAsStream(
-        s"${Platform.RESOURCE_PREFIX}/$platformName"
-      )
-
-      val parent = Files.createTempDirectory("treesitter4s")
-
-      val tf = parent.resolve(platformName)
-      Files.copy(resStream, tf)
-      tf.toFile.deleteOnExit()
-
-      System.load(tf.toString());
+    if (Platform.isMac()) {
+      loadLibFromCL("c++abi.1", cl)
+      loadLibFromCL("c++.1.0", cl)
     }
+  }
 
-    loadLibFromCL("c++abi.1")
-    loadLibFromCL("c++.1.0")
+  private def loadLibFromCL(name: String, classLoader: ClassLoader) = {
+    val platformName = System.mapLibraryName(name)
+
+    val resStream = classLoader.getResourceAsStream(
+      s"${Platform.RESOURCE_PREFIX}/$platformName"
+    )
+
+    val parent = Files.createTempDirectory("treesitter4s")
+
+    val tf = parent.resolve(platformName)
+    Files.copy(resStream, tf)
+    tf.toFile.deleteOnExit()
+
+    System.load(tf.toString());
   }
 
 }
