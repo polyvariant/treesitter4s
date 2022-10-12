@@ -45,6 +45,7 @@ val jvmTargetOptions = Seq("-source", "8", "-target", "8")
 val commonJVMSettings = Seq(
   javacOptions ++= jvmTargetOptions,
   doc / javacOptions --= jvmTargetOptions.:+("-Xlint:all"),
+  Test / fork := true,
 )
 
 lazy val core = crossProject(JVMPlatform, JSPlatform)
