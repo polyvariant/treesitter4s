@@ -6,10 +6,6 @@ ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(tlGitHubDev("kubukoz", "Jakub Kozłowski"))
 ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "macos-latest")
-ThisBuild / githubWorkflowBuild := WorkflowStep
-  .Tmate
-  .asInstanceOf[WorkflowStep.Use]
-  .copy(params = Map("limit-access-to-actor" -> "true")) :: Nil
 
 def crossPlugin(x: sbt.librarymanagement.ModuleID) = compilerPlugin(x.cross(CrossVersion.full))
 
