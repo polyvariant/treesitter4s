@@ -27,7 +27,16 @@ public class ScalaLanguageBindings {
 		Language tree_sitter_scala();
 	}
 
-	private static final Bindings LIBRARY = Native.load("tree-sitter-scala", Bindings.class);
+	private static final Bindings LIBRARY = loadLibrary();
+
+	private static Bindings loadLibrary() {
+		try {
+			return Native.load("tree-sitter-scala", Bindings.class);
+		} catch (UnsatisfiedLinkError e) {
+			e.printStackTrace();
+			throw new RuntimeException("Couldn't load library", e);
+		}
+	}
 
 	public static final Language Scala = LIBRARY.tree_sitter_scala();
 
