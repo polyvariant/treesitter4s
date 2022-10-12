@@ -45,6 +45,7 @@ object TreeSitterLanguages {
     Files.copy(resStream, tf)
     tf.toFile.deleteOnExit()
 
+    println(s"loading lib $name from $tf")
     System.load(tf.toString());
   }
 
