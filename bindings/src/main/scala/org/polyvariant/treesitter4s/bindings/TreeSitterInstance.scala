@@ -23,11 +23,17 @@ import org.polyvariant.treesitter4s.bindings.kernel.Language
 
 object TreeSitterInstance {
 
-  private val LIBRARY: TreeSitterLibrary = Native
-    .load(
-      "tree-sitter.0.0",
-      classOf[TreeSitterLibrary],
-    )
+  private val LIBRARY: TreeSitterLibrary =
+    try Native
+        .load(
+          "tree-sitter.0.0",
+          classOf[TreeSitterLibrary],
+        )
+    catch {
+      case e: UnsatisfiedLinkError =>
+        e.printStackTrace()
+        throw new Exception("Couldn't load tree-sitter", e)
+    }
 
   TreeSitterLanguages.unsafePrep()
 

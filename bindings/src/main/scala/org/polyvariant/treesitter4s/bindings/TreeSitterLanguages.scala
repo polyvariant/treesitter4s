@@ -46,7 +46,12 @@ object TreeSitterLanguages {
     tf.toFile.deleteOnExit()
 
     println(s"loading lib $name from $tf")
-    System.load(tf.toString());
+    try System.load(tf.toString())
+    catch {
+      case e: UnsatisfiedLinkError =>
+        e.printStackTrace()
+        throw new Exception("Couldn't load library", e)
+    }
   }
 
 }
