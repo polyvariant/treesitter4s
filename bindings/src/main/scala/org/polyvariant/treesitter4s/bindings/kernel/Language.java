@@ -18,11 +18,13 @@ package org.polyvariant.treesitter4s.bindings.kernel;
 
 import com.sun.jna.PointerType;
 import com.sun.jna.Pointer;
+import com.sun.jna.Platform;
+import com.sun.jna.Native;
+import com.sun.jna.Library;
 import java.io.InputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import com.sun.jna.Platform;
 
 public class Language extends PointerType {
 	public Language() {
@@ -33,9 +35,32 @@ public class Language extends PointerType {
 		super(p);
 	}
 
+	// utils
+
+	public static <C extends Library> C loadLanguageLibrary(String lang, Class<C> clazz) {
+		try {
+			Language.copyLibFromResources("tree-sitter-" + lang, clazz.getClassLoader());
+			return Native.load(fullPath("tree-sitter-" + lang), clazz);
+		} catch (UnsatisfiedLinkError e) {
+			e.printStackTrace();
+			throw new RuntimeException("Couldn't load library", e);
+		}
+	}
+
 	private static Path rootDirectory = makeRootDirectory();
 
-	public static String fullPath(String libName) {
+	static {
+		ClassLoader cl = Language.class.getClassLoader();
+
+		if (Platform.isMac()) {
+			copyLibFromResources("c++abi.1", cl);
+			copyLibFromResources("c++.1.0", cl);
+		}
+	}
+
+	// private utils don't look
+
+	private static String fullPath(String libName) {
 		return rootDirectory.resolve(System.mapLibraryName(libName)).toString();
 	}
 
@@ -47,7 +72,7 @@ public class Language extends PointerType {
 		}
 	}
 
-	public static void copyLibFromResources(String name, ClassLoader classLoader) {
+	private static void copyLibFromResources(String name, ClassLoader classLoader) {
 		String platformName = System.mapLibraryName(name);
 
 		try (InputStream resStream = classLoader.getResourceAsStream(Platform.RESOURCE_PREFIX + "/" + platformName)) {
@@ -59,12 +84,4 @@ public class Language extends PointerType {
 		}
 	}
 
-	static {
-		ClassLoader cl = Language.class.getClassLoader();
-
-		if (Platform.isMac()) {
-			copyLibFromResources("c++abi.1", cl);
-			copyLibFromResources("c++.1.0", cl);
-		}
-	}
 }
