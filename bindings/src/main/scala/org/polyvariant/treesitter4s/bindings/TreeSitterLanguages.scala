@@ -32,6 +32,8 @@ object TreeSitterLanguages {
       copyLibFromCL("c++abi.1", cl)
       val p2 = copyLibFromCL("c++.1.0", cl)
 
+      com.sun.jna.NativeLibrary.getInstance(p2.toString())
+
       loadLibFromCL(p2)
     }
   }
