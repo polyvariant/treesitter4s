@@ -97,14 +97,13 @@ private[bindings] object Facade {
           .toMap
 
       NodeImpl(
-        sourceFile = sourceFile,
         text = ts.ts_node_string(underlying),
         children = children,
         fields = fields,
         tpe = ts.ts_node_type(underlying),
         startByte = startByte,
         endByte = endByte,
-      )
+      )(sourceFile = sourceFile)
     }
 
     def tree(
@@ -128,13 +127,14 @@ private[bindings] case class TreeImpl(
 ) extends Tree
 
 private[bindings] case class NodeImpl(
-  private val sourceFile: String,
   text: String,
   tpe: String,
   children: List[treesitter4s.Node],
   fields: Map[String, treesitter4s.Node],
   startByte: Long,
   endByte: Long,
+)(
+  private val sourceFile: String
 ) extends treesitter4s.Node {
 
   def source: String =
