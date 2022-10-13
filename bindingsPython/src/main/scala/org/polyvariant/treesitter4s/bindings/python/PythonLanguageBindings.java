@@ -30,7 +30,7 @@ public class PythonLanguageBindings {
 
 	private static Bindings loadLibrary() {
 		try {
-			Language.copyLibFromCL("tree-sitter-python", PythonLanguageBindings.class.getClassLoader());
+			Language.copyLibFromResources("tree-sitter-python", PythonLanguageBindings.class.getClassLoader());
 			return Native.load(Language.fullPath("tree-sitter-python"), Bindings.class);
 		} catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();

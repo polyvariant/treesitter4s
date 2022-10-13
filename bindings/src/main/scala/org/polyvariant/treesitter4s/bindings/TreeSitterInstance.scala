@@ -35,8 +35,6 @@ object TreeSitterInstance {
         throw new Exception("Couldn't load tree-sitter", e)
     }
 
-  TreeSitterLanguages.unsafePrep()
-
   def make(language: Language): TreeSitter = Facade.make(language, LIBRARY)
 
 }

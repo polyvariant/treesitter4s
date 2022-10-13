@@ -31,7 +31,7 @@ public class ScalaLanguageBindings {
 
 	private static Bindings loadLibrary() {
 		try {
-			Language.copyLibFromCL("tree-sitter-scala", ScalaLanguageBindings.class.getClassLoader());
+			Language.copyLibFromResources("tree-sitter-scala", ScalaLanguageBindings.class.getClassLoader());
 			return Native.load(Language.fullPath("tree-sitter-scala"), Bindings.class);
 		} catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();

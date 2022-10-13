@@ -33,30 +33,38 @@ public class Language extends PointerType {
 		super(p);
 	}
 
-	public static Path parent = dupa();
+	private static Path rootDirectory = makeRootDirectory();
 
 	public static String fullPath(String libName) {
-		return parent.resolve(System.mapLibraryName(libName)).toString();
+		return rootDirectory.resolve(System.mapLibraryName(libName)).toString();
 	}
 
-	private static Path dupa() {
+	private static Path makeRootDirectory() {
 		try {
 			return Files.createTempDirectory("treesitter4s");
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Couldn't make temp directory", e);
 		}
 	}
 
-	public static void copyLibFromCL(String name, ClassLoader classLoader) {
+	public static void copyLibFromResources(String name, ClassLoader classLoader) {
 		String platformName = System.mapLibraryName(name);
 
 		try (InputStream resStream = classLoader.getResourceAsStream(Platform.RESOURCE_PREFIX + "/" + platformName)) {
-			Path tf = parent.resolve(platformName);
+			Path tf = rootDirectory.resolve(platformName);
 			Files.copy(resStream, tf);
 			tf.toFile().deleteOnExit();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Couldn't copy library to temp directory", e);
 		}
 	}
 
+	static {
+		ClassLoader cl = Language.class.getClassLoader();
+
+		if (Platform.isMac()) {
+			copyLibFromResources("c++abi.1", cl);
+			copyLibFromResources("c++.1.0", cl);
+		}
+	}
 }
