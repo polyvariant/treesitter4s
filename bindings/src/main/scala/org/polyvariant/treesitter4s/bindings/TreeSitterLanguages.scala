@@ -18,8 +18,10 @@ package org.polyvariant.treesitter4s.bindings
 
 import java.nio.file.Files
 import com.sun.jna.Platform
+import java.nio.file.Path
 
 object TreeSitterLanguages {
+  val parent = Files.createTempDirectory("treesitter4s")
 
   /** Loads the native libraries required by each language grammar.
     */
@@ -27,12 +29,14 @@ object TreeSitterLanguages {
     val cl = getClass().getClassLoader()
 
     if (Platform.isMac()) {
-      loadLibFromCL("c++abi.1", cl)
-      loadLibFromCL("c++.1.0", cl)
+      copyLibFromCL("c++abi.1", cl)
+      val p2 = copyLibFromCL("c++.1.0", cl)
+
+      loadLibFromCL(p2)
     }
   }
 
-  private def loadLibFromCL(name: String, classLoader: ClassLoader) = {
+  private def copyLibFromCL(name: String, classLoader: ClassLoader): Path = {
     val platformName = System.mapLibraryName(name)
 
     val resStream = classLoader.getResourceAsStream(
@@ -40,21 +44,19 @@ object TreeSitterLanguages {
     )
 
     try {
-
-      val parent = Files.createTempDirectory("treesitter4s")
-
       val tf = parent.resolve(platformName)
       Files.copy(resStream, tf)
       tf.toFile.deleteOnExit()
-
-      println(s"loading lib $name from $tf")
-      try System.load(tf.toString())
-      catch {
-        case e: UnsatisfiedLinkError =>
-          e.printStackTrace()
-          throw new Exception("Couldn't load library", e)
-      }
+      tf
     } finally resStream.close()
   }
+
+  private def loadLibFromCL(path: Path) =
+    try System.load(path.toString())
+    catch {
+      case e: UnsatisfiedLinkError =>
+        e.printStackTrace()
+        throw new Exception("Couldn't load library", e)
+    }
 
 }

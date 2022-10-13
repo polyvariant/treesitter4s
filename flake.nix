@@ -1,6 +1,5 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.flake-utils.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = { nixpkgs, flake-utils, ... }:
 
