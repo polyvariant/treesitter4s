@@ -53,7 +53,7 @@ private[bindings] object Facade {
 
         try {
           val tree = mkTree(parserPointer)
-          try fromNative.tree(ts, tree)
+          try fromNative.tree(ts, tree, source)
           finally ts.ts_tree_delete(tree)
         } finally ts.ts_parser_delete(parserPointer)
 
@@ -66,32 +66,46 @@ private[bindings] object Facade {
     def nodeNullCheck(
       ts: TreeSitterLibrary,
       node: TreeSitterLibrary.Node,
+      sourceFile: String,
     ): Option[treesitter4s.Node] =
       if (ts.ts_node_is_null(node))
         None
       else
-        Some(fromNative.node(ts, node))
+        Some(fromNative.node(ts, node, sourceFile))
 
-    def node(ts: TreeSitterLibrary, underlying: TreeSitterLibrary.Node): treesitter4s.Node =
+    def node(
+      ts: TreeSitterLibrary,
+      underlying: TreeSitterLibrary.Node,
+      sourceFile: String,
+    ): treesitter4s.Node = {
+      val startByte = ts.ts_node_start_byte(underlying).longValue()
+      val endByte = ts.ts_node_end_byte(underlying).longValue()
       NodeImpl(
+        source =
+          new String(
+            sourceFile.getBytes().slice(Math.toIntExact(startByte), Math.toIntExact(endByte))
+          ),
         text = ts.ts_node_string(underlying),
         children =
-          List.tabulate(ts.ts_node_child_count(underlying).intValue()) { i =>
+          List.tabulate(Math.toIntExact(ts.ts_node_child_count(underlying))) { i =>
             fromNative
-              .node(ts, ts.ts_node_child(underlying, i.toLong))
+              .node(ts, ts.ts_node_child(underlying, i.toLong), sourceFile)
           },
         tpe = ts.ts_node_type(underlying),
-        startByte = ts.ts_node_start_byte(underlying).longValue(),
-        endByte = ts.ts_node_end_byte(underlying).longValue(),
+        startByte = startByte,
+        endByte = endByte,
       )
+    }
 
     def tree(
       ts: TreeSitterLibrary,
       treePointer: TreeSitterLibrary.Tree,
+      sourceFile: String,
     ): Tree = TreeImpl(
       rootNode = fromNative.nodeNullCheck(
         ts,
         ts.ts_tree_root_node(treePointer),
+        sourceFile,
       )
     )
 
@@ -104,6 +118,7 @@ private[bindings] case class TreeImpl(
 ) extends Tree
 
 private[bindings] case class NodeImpl(
+  source: String,
   text: String,
   tpe: String,
   children: List[treesitter4s.Node],

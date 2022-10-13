@@ -27,6 +27,7 @@ trait Tree {
 }
 
 trait Node {
+  def source: String
   def text: String
   def tpe: String
   def children: List[Node]

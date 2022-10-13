@@ -73,4 +73,11 @@ object BindingTests extends FunSuite {
     assert.eql(rootNode.endByte, 14L)
   }
 
+  test("node text") {
+    val tree = parseExample("class Hello {}")
+    val node = tree.rootNode.getOrElse(sys.error("missing root node")).children(0).children(1)
+
+    assert.eql(node.source, "Hello")
+  }
+
 }
