@@ -18,6 +18,11 @@ package org.polyvariant.treesitter4s.bindings.kernel;
 
 import com.sun.jna.PointerType;
 import com.sun.jna.Pointer;
+import java.io.InputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import com.sun.jna.Platform;
 
 public class Language extends PointerType {
 	public Language() {
@@ -27,4 +32,31 @@ public class Language extends PointerType {
 	public Language(Pointer p) {
 		super(p);
 	}
+
+	public static Path parent = dupa();
+
+	public static String fullPath(String libName) {
+		return parent.resolve(System.mapLibraryName(libName)).toString();
+	}
+
+	private static Path dupa() {
+		try {
+			return Files.createTempDirectory("treesitter4s");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void copyLibFromCL(String name, ClassLoader classLoader) {
+		String platformName = System.mapLibraryName(name);
+
+		try (InputStream resStream = classLoader.getResourceAsStream(Platform.RESOURCE_PREFIX + "/" + platformName)) {
+			Path tf = parent.resolve(platformName);
+			Files.copy(resStream, tf);
+			tf.toFile().deleteOnExit();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
