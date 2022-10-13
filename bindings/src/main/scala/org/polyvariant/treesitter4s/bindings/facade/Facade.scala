@@ -38,7 +38,7 @@ private[bindings] object Facade {
       ): Tree = {
 
         def mkTree(parserPointer: TreeSitterLibrary.Parser): TreeSitterLibrary.Tree = {
-          ts.ts_parser_set_language(parserPointer, language)
+          assert(ts.ts_parser_set_language(parserPointer, language), "ts_parser_set_language")
 
           val sourceBytes = source.getBytes(StandardCharsets.UTF_8)
           ts.ts_parser_parse_string(
@@ -80,17 +80,30 @@ private[bindings] object Facade {
     ): treesitter4s.Node = {
       val startByte = ts.ts_node_start_byte(underlying).longValue()
       val endByte = ts.ts_node_end_byte(underlying).longValue()
+
+      val children =
+        List.tabulate(Math.toIntExact(ts.ts_node_child_count(underlying))) { i =>
+          fromNative
+            .node(ts, ts.ts_node_child(underlying, i.toLong), sourceFile)
+        }
+
+      val fields =
+        children
+          .indices
+          .flatMap { i =>
+            Option(ts.ts_node_field_name_for_child(underlying, i.toLong))
+              .map(_ -> children(i))
+          }
+          .toMap
+
       NodeImpl(
         source =
           new String(
             sourceFile.getBytes().slice(Math.toIntExact(startByte), Math.toIntExact(endByte))
           ),
         text = ts.ts_node_string(underlying),
-        children =
-          List.tabulate(Math.toIntExact(ts.ts_node_child_count(underlying))) { i =>
-            fromNative
-              .node(ts, ts.ts_node_child(underlying, i.toLong), sourceFile)
-          },
+        children = children,
+        fields = fields,
         tpe = ts.ts_node_type(underlying),
         startByte = startByte,
         endByte = endByte,
@@ -122,6 +135,7 @@ private[bindings] case class NodeImpl(
   text: String,
   tpe: String,
   children: List[treesitter4s.Node],
+  fields: Map[String, treesitter4s.Node],
   startByte: Long,
   endByte: Long,
 ) extends treesitter4s.Node

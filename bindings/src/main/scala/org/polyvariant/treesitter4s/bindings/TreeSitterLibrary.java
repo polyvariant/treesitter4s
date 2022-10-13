@@ -61,11 +61,13 @@ public interface TreeSitterLibrary extends Library {
 
 	void ts_parser_delete(Parser parser);
 
-	void ts_parser_set_language(Parser parser, Language language);
+	boolean ts_parser_set_language(Parser parser, Language language);
 
 	Tree ts_parser_parse_string(Parser parser, Pointer oldTree, byte[] string, long length);
 
 	// tree
+
+	String ts_node_field_name_for_child(Node node, long index);
 
 	Node ts_tree_root_node(Tree tree);
 
