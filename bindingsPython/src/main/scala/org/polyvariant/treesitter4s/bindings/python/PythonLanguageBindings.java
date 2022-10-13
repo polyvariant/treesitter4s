@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings
+package org.polyvariant.treesitter4s.bindings.python;
 
-import weaver._
-import org.polyvariant.treesitter4s.TreeSitter
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import org.polyvariant.treesitter4s.bindings.kernel.Language;
 
-// placeholder tests
-object BindingTests extends FunSuite {
-  test("binding tests are executed") {
-    assert.eql((Bindings: TreeSitter).noop, ())
-  }
+public class PythonLanguageBindings {
+
+	private static interface Bindings extends Library {
+		Language tree_sitter_python();
+	}
+
+	private static final Bindings LIBRARY = Language.loadLanguageLibrary("python", Bindings.class);
+
+	public static final Language Python = LIBRARY.tree_sitter_python();
+
 }

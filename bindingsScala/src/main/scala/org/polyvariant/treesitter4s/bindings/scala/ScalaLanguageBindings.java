@@ -14,10 +14,21 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings
+package org.polyvariant.treesitter4s.bindings.scala;
 
-import org.polyvariant.treesitter4s.TreeSitter
+import com.sun.jna.Library;
+import com.sun.jna.NativeLibrary;
+import com.sun.jna.Native;
+import org.polyvariant.treesitter4s.bindings.kernel.Language;
 
-object Bindings extends TreeSitter {
-  val noop: Unit = ()
+public class ScalaLanguageBindings {
+
+	private static interface Bindings extends Library {
+		Language tree_sitter_scala();
+	}
+
+	private static final Bindings LIBRARY = Language.loadLanguageLibrary("scala", Bindings.class);
+
+	public static final Language Scala = LIBRARY.tree_sitter_scala();
+
 }

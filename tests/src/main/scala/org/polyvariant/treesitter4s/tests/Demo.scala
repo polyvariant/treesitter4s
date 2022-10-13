@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s
+package org.polyvariant.treesitter4s.bindings
 
-trait TreeSitter {
+import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 
-  def parse(source: String): Tree
+object Demo {
 
-}
+  def main(args: Array[String]): Unit = {
+    val ts = TreeSitterInstance.make(ScalaLanguageBindings.Scala)
 
-trait Tree {
-  def rootNode: Option[Node]
-}
+    System.out.println(ts.parse("""class A""").rootNode.map(_.tpe))
+  }
 
-trait Node {
-  def text: String
-  def tpe: String
-  def children: List[Node]
-  def startByte: Long
-  def endByte: Long
 }
