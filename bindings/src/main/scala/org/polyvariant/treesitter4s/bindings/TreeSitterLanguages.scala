@@ -21,8 +21,6 @@ import com.sun.jna.Platform
 
 object TreeSitterLanguages {
 
-  private val parent = Files.createTempDirectory("treesitter4s")
-
   /** Loads the native libraries required by each language grammar.
     */
   def unsafePrep(): Unit = {
@@ -42,6 +40,9 @@ object TreeSitterLanguages {
     )
 
     try {
+
+      val parent = Files.createTempDirectory("treesitter4s")
+
       val tf = parent.resolve(platformName)
       Files.copy(resStream, tf)
       tf.toFile.deleteOnExit()
