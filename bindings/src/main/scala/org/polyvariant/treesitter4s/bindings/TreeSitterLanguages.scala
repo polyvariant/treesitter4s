@@ -39,19 +39,22 @@ object TreeSitterLanguages {
       s"${Platform.RESOURCE_PREFIX}/$platformName"
     )
 
-    val parent = Files.createTempDirectory("treesitter4s")
+    try {
 
-    val tf = parent.resolve(platformName)
-    Files.copy(resStream, tf)
-    tf.toFile.deleteOnExit()
+      val parent = Files.createTempDirectory("treesitter4s")
 
-    println(s"loading lib $name from $tf")
-    try System.load(tf.toString())
-    catch {
-      case e: UnsatisfiedLinkError =>
-        e.printStackTrace()
-        throw new Exception("Couldn't load library", e)
-    }
+      val tf = parent.resolve(platformName)
+      Files.copy(resStream, tf)
+      tf.toFile.deleteOnExit()
+
+      println(s"loading lib $name from $tf")
+      try System.load(tf.toString())
+      catch {
+        case e: UnsatisfiedLinkError =>
+          e.printStackTrace()
+          throw new Exception("Couldn't load library", e)
+      }
+    } finally resStream.close()
   }
 
 }
