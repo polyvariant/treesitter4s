@@ -12,16 +12,16 @@ function update() {
     RESOURCE_PATH="bindings/$RESOURCE_SUFFIX"
     mkdir -p "$RESOURCE_PATH"
     for file in c++.1.0 c++abi.1 charset.1 iconv-nocharset iconv tree-sitter.0.0; do
-        cp result/lib/lib$file.dylib "$RESOURCE_PATH"
+        cp result/lib/lib$file."$3" "$RESOURCE_PATH"
     done
     chmod +w "$RESOURCE_PATH"/*
 
     mkdir -p "bindingsScala/$RESOURCE_SUFFIX"
-    cp result/lib/libtree-sitter-scala.dylib "bindingsScala/$RESOURCE_SUFFIX"
+    cp result/lib/libtree-sitter-scala."$3" "bindingsScala/$RESOURCE_SUFFIX"
     chmod +w "bindingsScala/$RESOURCE_SUFFIX"/*
 
     mkdir -p "bindingsPython/$RESOURCE_SUFFIX"
-    cp result/lib/libtree-sitter-python.dylib "bindingsPython/$RESOURCE_SUFFIX"
+    cp result/lib/libtree-sitter-python."$3" "bindingsPython/$RESOURCE_SUFFIX"
     chmod +w "bindingsPython/$RESOURCE_SUFFIX"/*
 }
 
