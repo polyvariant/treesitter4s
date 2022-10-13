@@ -27,10 +27,7 @@ object TreeSitterLanguages {
     val cl = getClass().getClassLoader()
 
     if (Platform.isMac()) {
-      val p1 = loadLibFromCL("c++abi.1", cl)
-      val fullP1 = p1.getParent.toString() + ":" + System.getProperty("java.library.path")
-
-      System.setProperty("java.library.path", fullP1)
+      loadLibFromCL("c++abi.1", cl)
       loadLibFromCL("c++.1.0", cl)
     }
   }
@@ -51,10 +48,8 @@ object TreeSitterLanguages {
       tf.toFile.deleteOnExit()
 
       println(s"loading lib $name from $tf")
-      try {
-        System.load(tf.toString())
-        tf
-      } catch {
+      try System.load(tf.toString())
+      catch {
         case e: UnsatisfiedLinkError =>
           e.printStackTrace()
           throw new Exception("Couldn't load library", e)
