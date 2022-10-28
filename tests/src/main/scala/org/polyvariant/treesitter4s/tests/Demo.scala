@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings
+package org.polyvariant.treesitter4s.tests
 
 import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
+import org.polyvariant.treesitter4s.TreeSitter
 
 object Demo {
 
   def main(args: Array[String]): Unit = {
-    val ts = TreeSitterInstance.make(ScalaLanguageBindings.Scala)
+    val ts = TreeSitter.make(ScalaLanguageBindings.Scala)
 
     System.out.println(ts.parse("""class A""").rootNode.map(_.tpe))
   }

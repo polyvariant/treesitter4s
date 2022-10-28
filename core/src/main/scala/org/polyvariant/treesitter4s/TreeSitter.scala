@@ -22,6 +22,8 @@ trait TreeSitter {
 
 }
 
+object TreeSitter extends TreeSitterPlatform
+
 trait Tree {
   def rootNode: Option[Node]
 }

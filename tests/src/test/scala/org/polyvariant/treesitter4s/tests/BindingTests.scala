@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings
+package org.polyvariant.treesitter4s.tests
 
 import cats.implicits._
 import org.polyvariant.treesitter4s.Tree
 import weaver._
 import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
+import org.polyvariant.treesitter4s.TreeSitter
 
 object BindingTests extends FunSuite {
-  val tsScala = TreeSitterInstance.make(ScalaLanguageBindings.Scala)
-  val tsPython = TreeSitterInstance.make(PythonLanguageBindings.Python)
+  val tsScala = TreeSitter.make(ScalaLanguageBindings.Scala)
+  val tsPython = TreeSitter.make(PythonLanguageBindings.Python)
 
   def parseExample(s: String): Tree = tsScala.parse(s)
   def parseExamplePython(s: String): Tree = tsPython.parse(s)
