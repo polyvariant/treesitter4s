@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion := "0.2"
+ThisBuild / tlBaseVersion := "0.3"
 ThisBuild / organization := "org.polyvariant.treesitter4s"
 ThisBuild / organizationName := "Polyvariant"
 ThisBuild / startYear := Some(2022)
@@ -48,40 +48,34 @@ val commonJVMSettings = Seq(
   Test / fork := true,
 )
 
-lazy val core = crossProject(JVMPlatform, JSPlatform)
+lazy val core = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
     commonSettings
   )
-  .jvmSettings(commonJVMSettings)
-
-lazy val bindings = crossProject(JVMPlatform)
-  .crossType(CrossType.Pure)
-  .settings(
-    commonSettings,
+  .jvmSettings(
+    commonJVMSettings,
     libraryDependencies ++= Seq(
       "net.java.dev.jna" % "jna" % "5.12.1"
     ),
   )
-  .dependsOn(core)
-  .jvmSettings(commonJVMSettings)
 
 lazy val bindingsScala = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
-    name := "bindings-scala",
+    name := "language-scala",
     commonSettings,
   )
-  .dependsOn(bindings)
+  .dependsOn(core)
   .jvmSettings(commonJVMSettings)
 
 lazy val bindingsPython = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
-    name := "bindings-python",
+    name := "language-python",
     commonSettings,
   )
-  .dependsOn(bindings)
+  .dependsOn(core)
   .jvmSettings(commonJVMSettings)
 
 lazy val tests = crossProject(JVMPlatform)
@@ -94,7 +88,7 @@ lazy val tests = crossProject(JVMPlatform)
   .enablePlugins(NoPublishPlugin)
 
 lazy val root = tlCrossRootProject
-  .aggregate(core, bindings, bindingsScala, bindingsPython, tests)
+  .aggregate(core, bindingsScala, bindingsPython, tests)
   .settings(
     Compile / doc / sources := Seq(),
     sonatypeProfileName := "org.polyvariant",

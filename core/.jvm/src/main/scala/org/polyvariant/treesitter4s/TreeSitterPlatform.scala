@@ -16,11 +16,24 @@
 
 package org.polyvariant.treesitter4s
 
-import weaver._
+import com.sun.jna.Native
+import org.polyvariant.treesitter4s.internal.Facade
+import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 
-// placeholder tests
-object CoreTests extends FunSuite {
-  test("core tests are executed") {
-    success
-  }
+protected trait TreeSitterPlatform {
+
+  private val LIBRARY: TreeSitterLibrary =
+    try Native
+        .load(
+          "tree-sitter.0.0",
+          classOf[TreeSitterLibrary],
+        )
+    catch {
+      case e: UnsatisfiedLinkError =>
+        e.printStackTrace()
+        throw new Exception("Couldn't load tree-sitter", e)
+    }
+
+  def make(language: Language): TreeSitter = Facade.make(language, LIBRARY)
+
 }

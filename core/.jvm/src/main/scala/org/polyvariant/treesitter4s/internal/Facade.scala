@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings.facade
+package org.polyvariant.treesitter4s.internal
 
 import org.polyvariant.treesitter4s
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
-import org.polyvariant.treesitter4s.bindings.TreeSitterLibrary
-import org.polyvariant.treesitter4s.bindings.kernel.Language
+import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
+import org.polyvariant.treesitter4s.Language
 import java.nio.charset.StandardCharsets
 
-private[bindings] object Facade {
+private[treesitter4s] object Facade {
 
   def make(
     language: Language,
@@ -122,11 +122,11 @@ private[bindings] object Facade {
 
 }
 
-private[bindings] case class TreeImpl(
+private[treesitter4s] case class TreeImpl(
   rootNode: Option[treesitter4s.Node]
 ) extends Tree
 
-private[bindings] case class NodeImpl(
+private[treesitter4s] case class NodeImpl(
   text: String,
   tpe: String,
   children: List[treesitter4s.Node],

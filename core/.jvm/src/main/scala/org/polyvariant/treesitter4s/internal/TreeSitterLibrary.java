@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.bindings;
+package org.polyvariant.treesitter4s.internal;
 
 import com.sun.jna.*;
 import com.sun.jna.Structure.FieldOrder;
-import org.polyvariant.treesitter4s.bindings.kernel.Language;
+import org.polyvariant.treesitter4s.Language;
 
 // todo: this could be a separate library (independent of Scala versions)
 public interface TreeSitterLibrary extends Library {
