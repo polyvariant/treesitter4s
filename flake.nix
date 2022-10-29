@@ -105,6 +105,7 @@
               pkgs.tree-sitter
               ts-scala
               ts-python
+              pkgs.clang
             ];
           };
         }) // {
