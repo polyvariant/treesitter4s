@@ -29,14 +29,18 @@ ThisBuild / tlFatalWarningsInCi := false
 
 val commonSettings = Seq(
   libraryDependencies ++= compilerPlugins ++ Seq(
-    "com.disneystreaming" %%% "weaver-cats" % "0.8.0" % Test,
-    "com.disneystreaming" %%% "weaver-discipline" % "0.8.0" % Test,
-    "com.disneystreaming" %%% "weaver-scalacheck" % "0.8.0" % Test,
+    "com.disneystreaming" %%% "weaver-cats" % "0.8.0" % Test
   ),
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
   scalacOptions ++= {
     if (scalaVersion.value.startsWith("3"))
       Seq("-Yscala-release", "3.1")
+    else
+      Nil
+  },
+  scalacOptions ++= {
+    if (scalaVersion.value.startsWith("2.13"))
+      Seq("-Wnonunit-statement")
     else
       Nil
   },
@@ -48,19 +52,13 @@ val commonJVMSettings = Seq(
   javacOptions ++= jvmTargetOptions,
   doc / javacOptions --= (jvmTargetOptions :+ "-Xlint:all"),
   Test / fork := true,
-  scalacOptions ++= {
-    if (scalaVersion.value.startsWith("2.13"))
-      Seq("-Wnonunit-statement")
-    else
-      Nil
-  },
 )
 
 val commonJSSettings = Seq(
   scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
 )
 
-lazy val core = crossProject(JVMPlatform, JSPlatform)
+lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .settings(
     commonSettings
@@ -73,7 +71,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   )
   .jsSettings(commonJSSettings)
 
-lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform)
+lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .settings(
     name := "language-scala",
@@ -83,7 +81,7 @@ lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform)
   .jvmSettings(commonJVMSettings)
   .jsSettings(commonJSSettings)
 
-lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform)
+lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .settings(
     name := "language-python",
@@ -93,7 +91,7 @@ lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform)
   .jvmSettings(commonJVMSettings)
   .jsSettings(commonJSSettings)
 
-lazy val tests = crossProject(JVMPlatform, JSPlatform)
+lazy val tests = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .settings(
     commonSettings

@@ -37,84 +37,84 @@ object BindingTests extends FunSuite {
     assert.eql(rootNode.map(_.children.length), Some(1))
   }
 
-  test("root node child type") {
-    val tree = parseExample("class Hello {}")
-    val rootNode = tree.rootNode
+  // test("root node child type") {
+  //   val tree = parseExample("class Hello {}")
+  //   val rootNode = tree.rootNode
 
-    assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
-  }
+  //   assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
+  // }
 
-  test("root node child type - python") {
-    val tree = parseExamplePython("def hello()")
-    val rootNode = tree.rootNode
+  // test("root node child type - python") {
+  //   val tree = parseExamplePython("def hello()")
+  //   val rootNode = tree.rootNode
 
-    assert.eql(rootNode.map(_.tpe), Some("module"))
-  }
+  //   assert.eql(rootNode.map(_.tpe), Some("module"))
+  // }
 
-  test("root node child by index (in range)") {
-    val tree = parseExample("class Hello {}")
+  // test("root node child by index (in range)") {
+  //   val tree = parseExample("class Hello {}")
 
-    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+  //   val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-    assert.eql(rootNode.children.lift(0).isDefined, true)
-  }
+  //   assert.eql(rootNode.children.lift(0).isDefined, true)
+  // }
 
-  test("root node child by index (out of range)") {
-    val tree = parseExample("class Hello {}")
-    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+  // test("root node child by index (out of range)") {
+  //   val tree = parseExample("class Hello {}")
+  //   val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-    assert.eql(rootNode.children.lift(-1).isDefined, false)
-  }
+  //   assert.eql(rootNode.children.lift(-1).isDefined, false)
+  // }
 
-  test("root node, range") {
-    val tree = parseExample("class Hello {}")
-    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+  // test("root node, range") {
+  //   val tree = parseExample("class Hello {}")
+  //   val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-    assert.eql(rootNode.startByte, 0) &&
-    assert.eql(rootNode.endByte, 14)
-  }
+  //   assert.eql(rootNode.startByte, 0) &&
+  //   assert.eql(rootNode.endByte, 14)
+  // }
 
-  test("root node source") {
-    val tree = parseExample("class Hello {}")
-    val node = tree.rootNode.getOrElse(sys.error("missing root node"))
+  // test("root node source") {
+  //   val tree = parseExample("class Hello {}")
+  //   val node = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-    assert.eql(node.source, "class Hello {}")
-  }
+  //   assert.eql(node.source, "class Hello {}")
+  // }
 
-  test("node source") {
-    val tree = parseExample("class Hello {}")
-    val node = tree.rootNode.getOrElse(sys.error("missing root node")).children(0).children(1)
+  // test("node source") {
+  //   val tree = parseExample("class Hello {}")
+  //   val node = tree.rootNode.getOrElse(sys.error("missing root node")).children(0).children(1)
 
-    assert.eql(node.source, "Hello")
-  }
+  //   assert.eql(node.source, "Hello")
+  // }
 
-  test("root node text") {
-    val tree = parseExample("class Hello {}")
-    val node = tree.rootNode.getOrElse(sys.error("missing root node"))
+  // test("root node text") {
+  //   val tree = parseExample("class Hello {}")
+  //   val node = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-    assert.eql(
-      node.text,
-      "(compilation_unit (class_definition name: (identifier) body: (template_body)))",
-    )
-  }
+  //   assert.eql(
+  //     node.text,
+  //     "(compilation_unit (class_definition name: (identifier) body: (template_body)))",
+  //   )
+  // }
 
-  test("node text") {
-    val tree = parseExample("class Hello {}")
-    val node = tree.rootNode.getOrElse(sys.error("missing root node")).children(0).children(1)
+  // test("node text") {
+  //   val tree = parseExample("class Hello {}")
+  //   val node = tree.rootNode.getOrElse(sys.error("missing root node")).children(0).children(1)
 
-    assert.eql(node.text, "(identifier)")
-  }
+  //   assert.eql(node.text, "(identifier)")
+  // }
 
-  test("node fields") {
-    val tree = parseExample("class Hello {}")
-    val node = tree.rootNode.getOrElse(sys.error("missing root node")).children.head
+  // test("node fields") {
+  //   val tree = parseExample("class Hello {}")
+  //   val node = tree.rootNode.getOrElse(sys.error("missing root node")).children.head
 
-    val fieldNames = node.fields.keys.toList
-    assert.eql(fieldNames, "name" :: "body" :: Nil) &&
-    assert.eql(
-      node.fields.fmap(n => (n.source, n.tpe)),
-      Map("name" -> (("Hello", "identifier")), "body" -> (("{}", "template_body"))),
-    )
-  }
+  //   val fieldNames = node.fields.keys.toList
+  //   assert.eql(fieldNames, "name" :: "body" :: Nil) &&
+  //   assert.eql(
+  //     node.fields.fmap(n => (n.source, n.tpe)),
+  //     Map("name" -> (("Hello", "identifier")), "body" -> (("{}", "template_body"))),
+  //   )
+  // }
 
 }
