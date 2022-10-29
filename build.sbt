@@ -7,7 +7,7 @@ ThisBuild / developers := List(tlGitHubDev("kubukoz", "Jakub Kozłowski"))
 ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "macos-latest")
 
-// ThisBuild / githubWorkflowBuildPreamble += WorkflowStep.
+ThisBuild / githubWorkflowBuild ~= (WorkflowStep.Run(commands = List("yarn")) +: _)
 
 def crossPlugin(x: sbt.librarymanagement.ModuleID) = compilerPlugin(x.cross(CrossVersion.full))
 
