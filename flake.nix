@@ -65,25 +65,37 @@
           pkgs = import nixpkgs { inherit system; };
           ts-scala = pkgs.stdenv.mkDerivation {
             name = "tree-sitter-scala";
-            buildCommand = ''
-              mkdir -p $out/lib
-              # short term solution
-              cp ${pkgs.tree-sitter-grammars.tree-sitter-scala}/parser $out/lib/libtree-sitter-scala.dylib
-              chmod +w $out/lib/libtree-sitter-scala.dylib
-              # notable difference: full path to binary in new id
-              install_name_tool -id $out/lib/libtree-sitter-scala.dylib $out/lib/libtree-sitter-scala.dylib
-            '';
+            buildCommand =
+              if pkgs.stdenv.isDarwin then
+                ''
+                  mkdir -p $out/lib
+                  # short term solution
+                  cp ${pkgs.tree-sitter-grammars.tree-sitter-scala}/parser $out/lib/libtree-sitter-scala.dylib
+                  chmod +w $out/lib/libtree-sitter-scala.dylib
+                  # notable difference: full path to binary in new id
+                  install_name_tool -id $out/lib/libtree-sitter-scala.dylib $out/lib/libtree-sitter-scala.dylib
+                '' else
+                ''
+                  mkdir -p $out/lib
+                  cp ${pkgs.tree-sitter-grammars.tree-sitter-scala}/parser $out/lib/libtree-sitter-scala.so
+                '';
           };
           ts-python = pkgs.stdenv.mkDerivation {
             name = "tree-sitter-python";
-            buildCommand = ''
-              mkdir -p $out/lib
-              # short term solution
-              cp ${pkgs.tree-sitter-grammars.tree-sitter-python}/parser $out/lib/libtree-sitter-python.dylib
-              chmod +w $out/lib/libtree-sitter-python.dylib
-              # notable difference: full path to binary in new id
-              install_name_tool -id $out/lib/libtree-sitter-python.dylib $out/lib/libtree-sitter-python.dylib
-            '';
+            buildCommand =
+              if pkgs.stdenv.isDarwin then
+                ''
+                  mkdir -p $out/lib
+                  # short term solution
+                  cp ${pkgs.tree-sitter-grammars.tree-sitter-python}/parser $out/lib/libtree-sitter-python.dylib
+                  chmod +w $out/lib/libtree-sitter-python.dylib
+                  # notable difference: full path to binary in new id
+                  install_name_tool -id $out/lib/libtree-sitter-python.dylib $out/lib/libtree-sitter-python.dylib
+                '' else
+                ''
+                  mkdir -p $out/lib
+                  cp ${pkgs.tree-sitter-grammars.tree-sitter-python}/parser $out/lib/libtree-sitter-python.so
+                '';
           };
         in
         {
