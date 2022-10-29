@@ -34,6 +34,6 @@ trait Node {
   def tpe: String
   def children: List[Node]
   def fields: Map[String, Node]
-  def startByte: Long
-  def endByte: Long
+  def startByte: Int
+  def endByte: Int
 }

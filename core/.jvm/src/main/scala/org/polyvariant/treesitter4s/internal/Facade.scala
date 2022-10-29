@@ -19,7 +19,6 @@ package org.polyvariant.treesitter4s.internal
 import org.polyvariant.treesitter4s
 import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.TreeSitter
-import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 import org.polyvariant.treesitter4s.Language
 import java.nio.charset.StandardCharsets
 
@@ -78,8 +77,8 @@ private[treesitter4s] object Facade {
       underlying: TreeSitterLibrary.Node,
       sourceFile: String,
     ): treesitter4s.Node = {
-      val startByte = ts.ts_node_start_byte(underlying).longValue()
-      val endByte = ts.ts_node_end_byte(underlying).longValue()
+      val startByte = Math.toIntExact(ts.ts_node_start_byte(underlying).longValue())
+      val endByte = Math.toIntExact(ts.ts_node_end_byte(underlying).longValue())
 
       val children =
         List.tabulate(Math.toIntExact(ts.ts_node_child_count(underlying))) { i =>
@@ -131,15 +130,15 @@ private[treesitter4s] case class NodeImpl(
   tpe: String,
   children: List[treesitter4s.Node],
   fields: Map[String, treesitter4s.Node],
-  startByte: Long,
-  endByte: Long,
+  startByte: Int,
+  endByte: Int,
 )(
   private val sourceFile: String
 ) extends treesitter4s.Node {
 
   def source: String =
     new String(
-      sourceFile.getBytes().slice(Math.toIntExact(startByte), Math.toIntExact(endByte))
+      sourceFile.slice(startByte, endByte)
     )
 
 }

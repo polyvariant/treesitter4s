@@ -70,15 +70,39 @@ object BindingTests extends FunSuite {
     val tree = parseExample("class Hello {}")
     val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-    assert.eql(rootNode.startByte, 0L) &&
-    assert.eql(rootNode.endByte, 14L)
+    assert.eql(rootNode.startByte, 0) &&
+    assert.eql(rootNode.endByte, 14)
+  }
+
+  test("root node source") {
+    val tree = parseExample("class Hello {}")
+    val node = tree.rootNode.getOrElse(sys.error("missing root node"))
+
+    assert.eql(node.source, "class Hello {}")
+  }
+
+  test("node source") {
+    val tree = parseExample("class Hello {}")
+    val node = tree.rootNode.getOrElse(sys.error("missing root node")).children(0).children(1)
+
+    assert.eql(node.source, "Hello")
+  }
+
+  test("root node text") {
+    val tree = parseExample("class Hello {}")
+    val node = tree.rootNode.getOrElse(sys.error("missing root node"))
+
+    assert.eql(
+      node.text,
+      "(compilation_unit (class_definition name: (identifier) body: (template_body)))",
+    )
   }
 
   test("node text") {
     val tree = parseExample("class Hello {}")
     val node = tree.rootNode.getOrElse(sys.error("missing root node")).children(0).children(1)
 
-    assert.eql(node.source, "Hello")
+    assert.eql(node.text, "(identifier)")
   }
 
   test("node fields") {
@@ -87,7 +111,10 @@ object BindingTests extends FunSuite {
 
     val fieldNames = node.fields.keys.toList
     assert.eql(fieldNames, "name" :: "body" :: Nil) &&
-    assert.eql(node.fields("body").tpe, "template_body")
+    assert.eql(
+      node.fields.fmap(n => (n.source, n.tpe)),
+      Map("name" -> ("Hello", "identifier"), "body" -> ("{}", "template_body")),
+    )
   }
 
 }
