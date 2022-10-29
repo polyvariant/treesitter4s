@@ -16,24 +16,5 @@
 
 package org.polyvariant.treesitter4s
 
-trait TreeSitter {
-
-  def parse(source: String): Tree
-
-}
-
-object TreeSitter extends TreeSitterPlatform
-
-trait Tree {
-  def rootNode: Option[Node]
-}
-
-trait Node {
-  def source: String
-  def text: String
-  def tpe: String
-  def children: List[Node]
-  def fields: Map[String, Node]
-  def startByte: Int
-  def endByte: Int
-}
+@scalajs.js.native
+trait Language extends scalajs.js.Any

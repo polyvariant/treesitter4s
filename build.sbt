@@ -7,6 +7,8 @@ ThisBuild / developers := List(tlGitHubDev("kubukoz", "Jakub Kozłowski"))
 ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "macos-latest")
 
+ThisBuild / githubWorkflowBuild ~= (WorkflowStep.Run(commands = List("yarn")) +: _)
+
 def crossPlugin(x: sbt.librarymanagement.ModuleID) = compilerPlugin(x.cross(CrossVersion.full))
 
 val compilerPlugins = List(
@@ -27,9 +29,9 @@ ThisBuild / tlFatalWarningsInCi := false
 
 val commonSettings = Seq(
   libraryDependencies ++= compilerPlugins ++ Seq(
-    "com.disneystreaming" %%% "weaver-cats" % "0.7.15" % Test,
-    "com.disneystreaming" %%% "weaver-discipline" % "0.7.15" % Test,
-    "com.disneystreaming" %%% "weaver-scalacheck" % "0.7.15" % Test,
+    "com.disneystreaming" %%% "weaver-cats" % "0.8.0" % Test,
+    "com.disneystreaming" %%% "weaver-discipline" % "0.8.0" % Test,
+    "com.disneystreaming" %%% "weaver-scalacheck" % "0.8.0" % Test,
   ),
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
   scalacOptions ++= {
@@ -44,11 +46,21 @@ val jvmTargetOptions = Seq("-source", "8", "-target", "8")
 
 val commonJVMSettings = Seq(
   javacOptions ++= jvmTargetOptions,
-  doc / javacOptions --= jvmTargetOptions.:+("-Xlint:all"),
+  doc / javacOptions --= (jvmTargetOptions :+ "-Xlint:all"),
   Test / fork := true,
+  scalacOptions ++= {
+    if (scalaVersion.value.startsWith("2.13"))
+      Seq("-Wnonunit-statement")
+    else
+      Nil
+  },
 )
 
-lazy val core = crossProject(JVMPlatform)
+val commonJSSettings = Seq(
+  scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
+)
+
+lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .settings(
     commonSettings
@@ -59,8 +71,9 @@ lazy val core = crossProject(JVMPlatform)
       "net.java.dev.jna" % "jna" % "5.12.1"
     ),
   )
+  .jsSettings(commonJSSettings)
 
-lazy val bindingsScala = crossProject(JVMPlatform)
+lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .settings(
     name := "language-scala",
@@ -68,8 +81,9 @@ lazy val bindingsScala = crossProject(JVMPlatform)
   )
   .dependsOn(core)
   .jvmSettings(commonJVMSettings)
+  .jsSettings(commonJSSettings)
 
-lazy val bindingsPython = crossProject(JVMPlatform)
+lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .settings(
     name := "language-python",
@@ -77,14 +91,16 @@ lazy val bindingsPython = crossProject(JVMPlatform)
   )
   .dependsOn(core)
   .jvmSettings(commonJVMSettings)
+  .jsSettings(commonJSSettings)
 
-lazy val tests = crossProject(JVMPlatform)
+lazy val tests = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .settings(
     commonSettings
   )
   .dependsOn(bindingsScala, bindingsPython)
   .jvmSettings(commonJVMSettings)
+  .jsSettings(commonJSSettings)
   .enablePlugins(NoPublishPlugin)
 
 lazy val root = tlCrossRootProject

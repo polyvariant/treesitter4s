@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s
+package org.polyvariant.treesitter4s.bindings.scala
 
-trait TreeSitter {
+import org.polyvariant.treesitter4s.Language
+import scalajs.js
+import js.annotation.JSImport
 
-  def parse(source: String): Tree
+object ScalaLanguageBindings {
 
-}
+  @js.native
+  @js.annotation.JSImport("tree-sitter-scala", JSImport.Namespace)
+  def Scala: Language = js.native
 
-object TreeSitter extends TreeSitterPlatform
-
-trait Tree {
-  def rootNode: Option[Node]
-}
-
-trait Node {
-  def source: String
-  def text: String
-  def tpe: String
-  def children: List[Node]
-  def fields: Map[String, Node]
-  def startByte: Int
-  def endByte: Int
 }
