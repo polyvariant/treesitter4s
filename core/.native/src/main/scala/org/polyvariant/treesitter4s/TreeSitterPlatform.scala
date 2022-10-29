@@ -17,6 +17,7 @@
 package org.polyvariant.treesitter4s
 
 import scala.scalanative.unsafe._
+import scala.scalanative.unsigned._
 
 protected trait TreeSitterPlatform {
 
@@ -27,8 +28,7 @@ protected trait TreeSitterPlatform {
         val parser = tree_sitter.ts_parser_new()
         tree_sitter.ts_parser_set_language(parser, language)
 
-        try {
-          val tree = Zone { implicit z =>
+        try Zone { implicit z =>
             val rt = tree_sitter.ts_parser_parse_string(
               parser,
               null,
@@ -36,28 +36,61 @@ protected trait TreeSitterPlatform {
               source.getBytes.length,
             )
 
-            val node = alloc[tree_sitter.TSNode](1)
+            try {
+              val node = alloc[tree_sitter.TSNode](1)
 
-            tree_sitter.ts_tree_root_node_ptr(
-              rt,
-              node,
-            )
+              tree_sitter.ts_tree_root_node_ptr(
+                rt,
+                node,
+              )
 
-            if (!tree_sitter.ts_node_is_null_ptr(node))
-              println(fromCString(tree_sitter.ts_node_string_ptr(node)))
-            else
-              println("node is null!")
+              new Tree {
+                val rootNode: Option[Node] =
+                  if (!tree_sitter.ts_node_is_null_ptr(node))
+                    Some(makeNode(node, source))
+                  else
+                    None
+              }
 
-            rt
+            } finally tree_sitter.ts_tree_delete(rt)
           }
 
-          try
-            new Tree {
-              def rootNode: Option[Node] = None
-            }
-          finally tree_sitter.ts_tree_delete(tree)
-        } finally tree_sitter.ts_parser_delete(parser)
+        finally tree_sitter.ts_parser_delete(parser)
       }
+
+    }
+
+  private def makeNode(underlying: Ptr[tree_sitter.TSNode], fileSource: String): Node =
+    new Node {
+
+      val text: String = fromCString(tree_sitter.ts_node_string_ptr(underlying))
+
+      val tpe: String = fromCString(tree_sitter.ts_node_type_ptr(underlying))
+
+      val children: List[Node] =
+        List.tabulate(tree_sitter.ts_node_child_count_ptr(underlying).toInt) { i =>
+          Zone { implicit z =>
+            val newNode = alloc[tree_sitter.TSNode](1)
+            tree_sitter.ts_node_child_ptr(underlying, i.toUInt, newNode)
+
+            makeNode(newNode, fileSource)
+          }
+        }
+
+      val startByte: Int = tree_sitter.ts_node_start_byte_ptr(underlying).toInt
+
+      val endByte: Int = tree_sitter.ts_node_end_byte_ptr(underlying).toInt
+
+      val fields: Map[String, Node] =
+        children
+          .indices
+          .flatMap { i =>
+            Option(tree_sitter.ts_node_field_name_for_child_ptr(underlying, i.toUInt))
+              .map(name => fromCString(name) -> children(i))
+          }
+          .toMap
+
+      def source: String = fileSource.slice(startByte, endByte)
 
     }
 
@@ -99,5 +132,10 @@ object tree_sitter {
 
   def ts_node_string_ptr(node: Ptr[TSNode]): CString = extern
   def ts_node_is_null_ptr(node: Ptr[TSNode]): CBool = extern
-
+  def ts_node_type_ptr(node: Ptr[TSNode]): CString = extern
+  def ts_node_child_ptr(node: Ptr[TSNode], index: uint32_t, result: Ptr[TSNode]): Unit = extern
+  def ts_node_child_count_ptr(node: Ptr[TSNode]): uint32_t = extern
+  def ts_node_start_byte_ptr(node: Ptr[TSNode]): uint32_t = extern
+  def ts_node_end_byte_ptr(node: Ptr[TSNode]): uint32_t = extern
+  def ts_node_field_name_for_child_ptr(node: Ptr[TSNode], index: uint32_t): CString = extern
 }

@@ -61,7 +61,12 @@ val commonJSSettings = Seq(
 lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .settings(
-    commonSettings
+    commonSettings,
+    // Skipping tests in this module to avoid dealing with Native's linking errors
+    // (the TS code isn't used in the tests so it doesn't see the glue - or something)
+    // This is also why there are tests in the binding modules.
+    // see https://github.com/scala-native/scala-native/issues/2778
+    test := {},
   )
   .jvmSettings(
     commonJVMSettings,

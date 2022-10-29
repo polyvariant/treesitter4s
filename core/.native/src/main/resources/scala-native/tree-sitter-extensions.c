@@ -3,14 +3,6 @@
 
 // Wrappers for native methods that allow passing structs by value (SN doesn't
 // support that)
-
-// magic incantations to workaround scala-native#2778
-// many thanks to @armanbilge for the hint
-// disabled for now
-// #pragma weak ts_tree_root_node
-// #pragma weak ts_node_string
-// #pragma weak ts_node_is_null
-
 void ts_tree_root_node_ptr(TSTree *tree, TSNode *_return) {
   TSNode raw = ts_tree_root_node(tree);
   memcpy(_return, &raw, sizeof(TSNode));
@@ -18,3 +10,24 @@ void ts_tree_root_node_ptr(TSTree *tree, TSNode *_return) {
 
 char *ts_node_string_ptr(TSNode *node) { return ts_node_string(*node); }
 bool ts_node_is_null_ptr(TSNode *node) { return ts_node_is_null(*node); };
+
+uint32_t ts_node_child_count_ptr(TSNode *node) {
+  return ts_node_child_count(*node);
+}
+
+const char *ts_node_type_ptr(TSNode *node) { return ts_node_type(*node); }
+
+void ts_node_child_ptr(TSNode *node, uint32_t index, TSNode *_return) {
+  TSNode raw = ts_node_child(*node, index);
+  memcpy(_return, &raw, sizeof(TSNode));
+}
+
+uint32_t ts_node_start_byte_ptr(TSNode *node) {
+  return ts_node_start_byte(*node);
+}
+
+uint32_t ts_node_end_byte_ptr(TSNode *node) { return ts_node_end_byte(*node); }
+
+const char *ts_node_field_name_for_child_ptr(TSNode *node, uint32_t index) {
+  return ts_node_field_name_for_child(*node, index);
+}

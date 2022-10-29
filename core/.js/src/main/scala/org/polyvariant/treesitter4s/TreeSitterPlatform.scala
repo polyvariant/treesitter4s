@@ -62,6 +62,8 @@ protected trait TreeSitterPlatform {
 
         val t = p.parse(source)
         new Tree {
+          // no idea why, but it seems like the JS api always returns a root node.
+          // Maybe it just throws if there isn't any?
           val rootNode: Option[Node] = Some(unwrapNode(t.rootNode))
         }
       }
@@ -86,7 +88,7 @@ protected trait TreeSitterPlatform {
             // we walk the node's children and gather the field names that way.
             val fieldMap = Map.newBuilder[String, Node]
             val c = nativeNode.walk()
-            c.gotoFirstChild()
+            c.gotoFirstChild(): Unit
 
             var i = 0
 
