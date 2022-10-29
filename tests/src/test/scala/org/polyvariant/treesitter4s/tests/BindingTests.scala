@@ -113,7 +113,7 @@ object BindingTests extends FunSuite {
     assert.eql(fieldNames, "name" :: "body" :: Nil) &&
     assert.eql(
       node.fields.fmap(n => (n.source, n.tpe)),
-      Map("name" -> ("Hello", "identifier"), "body" -> ("{}", "template_body")),
+      Map("name" -> (("Hello", "identifier")), "body" -> (("{}", "template_body"))),
     )
   }
 

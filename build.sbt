@@ -48,6 +48,12 @@ val commonJVMSettings = Seq(
   javacOptions ++= jvmTargetOptions,
   doc / javacOptions --= (jvmTargetOptions :+ "-Xlint:all"),
   Test / fork := true,
+  scalacOptions ++= {
+    if (scalaVersion.value.startsWith("2.13"))
+      Seq("-Wnonunit-statement")
+    else
+      Nil
+  },
 )
 
 val commonJSSettings = Seq(
