@@ -22,7 +22,6 @@ import weaver._
 import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
 import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
 import org.polyvariant.treesitter4s.TreeSitter
-import scala.util.Try
 
 object BindingTests extends FunSuite {
   val tsScala = TreeSitter.make(ScalaLanguageBindings.Scala)

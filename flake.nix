@@ -72,8 +72,7 @@
                   # short term solution
                   cp ${pkgs.tree-sitter-grammars.tree-sitter-scala}/parser $out/lib/libtree-sitter-scala.dylib
                   chmod +w $out/lib/libtree-sitter-scala.dylib
-                  # notable difference: full path to binary in new id
-                  install_name_tool -id $out/lib/libtree-sitter-scala.dylib $out/lib/libtree-sitter-scala.dylib
+                  install_name_tool -id libtree-sitter-scala.dylib $out/lib/libtree-sitter-scala.dylib
                 '' else
                 ''
                   mkdir -p $out/lib
@@ -89,8 +88,7 @@
                   # short term solution
                   cp ${pkgs.tree-sitter-grammars.tree-sitter-python}/parser $out/lib/libtree-sitter-python.dylib
                   chmod +w $out/lib/libtree-sitter-python.dylib
-                  # notable difference: full path to binary in new id
-                  install_name_tool -id $out/lib/libtree-sitter-python.dylib $out/lib/libtree-sitter-python.dylib
+                  install_name_tool -id libtree-sitter-python.dylib $out/lib/libtree-sitter-python.dylib
                 '' else
                 ''
                   mkdir -p $out/lib
@@ -107,6 +105,9 @@
               ts-python
               pkgs.clang
             ];
+            shellHook = ''
+              export DYLD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ts-scala ts-python]}"
+            '';
           };
         }) // {
       packages.aarch64-darwin.binaries = mkDarwinBinaries "aarch64-darwin";
