@@ -66,7 +66,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     // (the TS code isn't used in the tests so it doesn't see the glue - or something)
     // This is also why there are tests in the binding modules.
     // see https://github.com/scala-native/scala-native/issues/2778
-    test := {},
+    Test / test := {},
   )
   .jvmSettings(
     commonJVMSettings,
