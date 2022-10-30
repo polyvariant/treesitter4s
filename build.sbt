@@ -60,6 +60,7 @@ val commonJSSettings = Seq(
 
 lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/core"))
   .settings(
     commonSettings,
     // Skipping tests in this module to avoid dealing with Native's linking errors
@@ -78,6 +79,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 
 lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/bindingsScala"))
   .settings(
     name := "language-scala",
     commonSettings,
@@ -88,6 +90,7 @@ lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 
 lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/bindingsPython"))
   .settings(
     name := "language-python",
     commonSettings,
@@ -98,6 +101,7 @@ lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 
 lazy val tests = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/tests"))
   .settings(
     commonSettings
   )
