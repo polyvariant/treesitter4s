@@ -100,7 +100,7 @@
         in
         {
           devShells.default = pkgs.mkShell {
-            buildInputs = [ pkgs.nodejs pkgs.yarn pkgs.sbt pkgs.binutils ];
+            buildInputs = [ pkgs.jre pkgs.nodejs pkgs.yarn pkgs.sbt pkgs.binutils ];
             nativeBuildInputs = [
               pkgs.tree-sitter
               ts-scala
