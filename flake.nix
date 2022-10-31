@@ -1,7 +1,7 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, ... }:
 
     let
       mkDarwinBinaries = system:
@@ -64,7 +64,7 @@
       (system:
         let
           pkgs = import nixpkgs { inherit system; };
-          lib = import ./lib.nix;
+          lib = self.lib;
 
           ts-scala = pkgs.callPackage lib.rename-grammar {
             pname = "tree-sitter-scala";
@@ -112,5 +112,7 @@
       packages.aarch64-linux.ts-python =
         let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
         pkgs.tree-sitter-grammars.tree-sitter-python;
+    } // {
+      lib = import ./lib.nix;
     };
 }
