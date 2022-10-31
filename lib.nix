@@ -1,5 +1,13 @@
 let
-  rename-grammar = { lib, stdenv, libcxxabi, libcxx, grammar, pname, rename-dependencies ? true }:
+  rename-grammar =
+    { lib
+    , stdenv
+    , libcxxabi
+    , libcxx
+    , grammar
+    , pname
+    , rename-dependencies ? true
+    }:
     stdenv.mkDerivation {
       inherit pname;
       inherit (grammar) version;
@@ -28,9 +36,9 @@ let
     , stdenv
     , package
     , system-mappings ? {
-        "darwin-x86_64" = "x86_64-darwin";
+        "darwin-x86-64" = "x86_64-darwin";
         "darwin-aarch64" = "aarch64-darwin";
-        "linux-x86_64" = "x86_64-linux";
+        "linux-x86-64" = "x86_64-linux";
         "linux-aarch64" = "aarch64-linux";
       }
     }: linkFarm "${(package stdenv.system).name}-all" (

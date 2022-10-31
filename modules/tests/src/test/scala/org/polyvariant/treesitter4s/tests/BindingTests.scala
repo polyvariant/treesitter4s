@@ -19,8 +19,8 @@ package org.polyvariant.treesitter4s.tests
 import cats.implicits._
 import org.polyvariant.treesitter4s.Tree
 import weaver._
-import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
-import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
+import org.polyvariant.treesitter4s.language.scala.ScalaLanguageBindings
+import org.polyvariant.treesitter4s.language.python.PythonLanguageBindings
 import org.polyvariant.treesitter4s.TreeSitter
 
 object BindingTests extends FunSuite {

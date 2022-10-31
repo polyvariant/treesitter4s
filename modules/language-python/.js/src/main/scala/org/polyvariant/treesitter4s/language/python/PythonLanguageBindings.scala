@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.tests
+package org.polyvariant.treesitter4s.language.python
 
-import org.polyvariant.treesitter4s.language.scala.ScalaLanguageBindings
-import org.polyvariant.treesitter4s.TreeSitter
+import org.polyvariant.treesitter4s.Language
+import scalajs.js
+import js.annotation.JSImport
 
-object Demo {
+object PythonLanguageBindings {
 
-  def main(args: Array[String]): Unit = {
-    val ts = TreeSitter.make(ScalaLanguageBindings.Scala)
-
-    System.out.println(ts.parse("""class A""").rootNode.map(_.tpe))
-  }
+  @js.native
+  @js.annotation.JSImport("tree-sitter-python", JSImport.Namespace)
+  def Python: Language = js.native
 
 }

@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.tests
+package org.polyvariant.treesitter4s.language.python;
 
-import org.polyvariant.treesitter4s.language.scala.ScalaLanguageBindings
-import org.polyvariant.treesitter4s.TreeSitter
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import org.polyvariant.treesitter4s.Language;
 
-object Demo {
+public class PythonLanguageBindings {
 
-  def main(args: Array[String]): Unit = {
-    val ts = TreeSitter.make(ScalaLanguageBindings.Scala)
+	private static interface Bindings extends Library {
+		Language tree_sitter_python();
+	}
 
-    System.out.println(ts.parse("""class A""").rootNode.map(_.tpe))
-  }
+	private static final Bindings LIBRARY = Language.loadLanguageLibrary("python", Bindings.class);
+
+	public static final Language Python = LIBRARY.tree_sitter_python();
 
 }

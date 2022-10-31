@@ -77,9 +77,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
   .jsSettings(commonJSSettings)
 
-lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+lazy val languageScala = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
-  .in(file("modules/bindingsScala"))
+  .in(file("modules/language-scala"))
   .settings(
     name := "language-scala",
     commonSettings,
@@ -88,9 +88,9 @@ lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .jvmSettings(commonJVMSettings)
   .jsSettings(commonJSSettings)
 
-lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+lazy val languagePython = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
-  .in(file("modules/bindingsPython"))
+  .in(file("modules/language-python"))
   .settings(
     name := "language-python",
     commonSettings,
@@ -105,13 +105,13 @@ lazy val tests = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     commonSettings
   )
-  .dependsOn(bindingsScala, bindingsPython)
+  .dependsOn(languageScala, languagePython)
   .jvmSettings(commonJVMSettings)
   .jsSettings(commonJSSettings)
   .enablePlugins(NoPublishPlugin)
 
 lazy val root = tlCrossRootProject
-  .aggregate(core, bindingsScala, bindingsPython, tests)
+  .aggregate(core, languageScala, languagePython, tests)
   .settings(
     Compile / doc / sources := Seq(),
     sonatypeProfileName := "org.polyvariant",

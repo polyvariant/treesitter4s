@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.tests
+package org.polyvariant.treesitter4s.language.scala
 
-import org.polyvariant.treesitter4s.language.scala.ScalaLanguageBindings
-import org.polyvariant.treesitter4s.TreeSitter
+import scala.scalanative.unsafe._
 
-object Demo {
+@extern
+@link("tree-sitter-scala")
+object ScalaLanguageBindings {
+  import org.polyvariant.treesitter4s.tree_sitter.Language
 
-  def main(args: Array[String]): Unit = {
-    val ts = TreeSitter.make(ScalaLanguageBindings.Scala)
-
-    System.out.println(ts.parse("""class A""").rootNode.map(_.tpe))
-  }
+  @name("tree_sitter_scala")
+  def Scala: Ptr[Language] = extern
 
 }
