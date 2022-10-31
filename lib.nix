@@ -6,7 +6,8 @@ let
       src = grammar;
       buildPhase =
         if stdenv.isDarwin then ''
-          install_name_tool -id lib${pname}.dylib parser'' + (
+          install_name_tool -id lib${pname}.dylib parser
+        '' + (
           if rename-dependencies then ''
             install_name_tool -change ${libcxxabi}/lib/libc++abi.1.dylib @loader_path/libc++abi.1.dylib parser
             install_name_tool -change ${libcxx}/lib/libc++.1.0.dylib @loader_path/libc++.1.0.dylib parser
@@ -43,3 +44,4 @@ let
 in
 
 { inherit rename-grammar make-grammar-resources; }
+
