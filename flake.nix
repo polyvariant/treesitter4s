@@ -1,7 +1,7 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, ... }:
 
     let
       mkDarwinBinaries = system:
@@ -15,13 +15,6 @@
             function copyLib() {
               # 1 - lib derivation path, 2 - target lib name
               cp "$1/lib/$2.dylib" "$out/lib/$2.dylib"
-              chmod +w "$out/lib/$2.dylib"
-              install_name_tool -id $2.dylib $out/lib/$2.dylib
-            }
-
-            function copyGrammar() {
-              # 1 - grammar derivation path, 2 - target lib name
-              cp "$1/parser" "$out/lib/$2.dylib"
               chmod +w "$out/lib/$2.dylib"
               install_name_tool -id $2.dylib $out/lib/$2.dylib
             }
@@ -47,45 +40,61 @@
             copyLib ${pkgs.libcxx} "libc++.1.0"
             renameLib ${pkgs.libcxxabi} libc++abi.1 libc++.1.0
             copyLib ${pkgs.libcxxabi} "libc++abi.1"
-
-            # scala grammar
-            copyGrammar ${pkgs.tree-sitter-grammars.tree-sitter-scala} libtree-sitter-scala
-            renameLib ${pkgs.libcxxabi} libc++abi.1 libtree-sitter-scala
-            renameLib ${pkgs.libcxx} libc++.1.0 libtree-sitter-scala
-
-            # python grammar
-            copyGrammar ${pkgs.tree-sitter-grammars.tree-sitter-python} libtree-sitter-python
-            renameLib ${pkgs.libcxxabi} libc++abi.1 libtree-sitter-python
-            renameLib ${pkgs.libcxx} libc++.1.0 libtree-sitter-python
           '';
-        }; in
+        };
+    in
     flake-utils.lib.eachDefaultSystem
       (system:
-        let pkgs = import nixpkgs { inherit system; };
+        let
+          pkgs = import nixpkgs { inherit system; };
+          lib = self.lib;
+
+          ts-scala-generic = { rename-dependencies }: pkgs.callPackage lib.rename-grammar {
+            pname = "tree-sitter-scala";
+            grammar = pkgs.tree-sitter-grammars.tree-sitter-scala;
+            inherit rename-dependencies;
+          };
+          ts-scala-shell = ts-scala-generic { rename-dependencies = false; };
+
+          ts-python-generic = { rename-dependencies }: pkgs.callPackage lib.rename-grammar {
+            pname = "tree-sitter-python";
+            grammar = pkgs.tree-sitter-grammars.tree-sitter-python;
+            inherit rename-dependencies;
+          };
+
+          ts-python-shell = ts-python-generic { rename-dependencies = false; };
         in
         {
-          devShells.default = pkgs.mkShell { packages = [ pkgs.nodejs pkgs.yarn pkgs.sbt pkgs.binutils ]; };
-        }) // {
-      packages.aarch64-darwin.binaries = mkDarwinBinaries "aarch64-darwin";
-      packages.x86_64-darwin.binaries = mkDarwinBinaries "x86_64-darwin";
-      packages.x86_64-linux.ts =
-        let pkgs = import nixpkgs { system = "x86_64-linux"; }; in
-        pkgs.tree-sitter;
-      packages.x86_64-linux.ts-scala =
-        let pkgs = import nixpkgs { system = "x86_64-linux"; }; in
-        pkgs.tree-sitter-grammars.tree-sitter-scala;
-      packages.x86_64-linux.ts-python =
-        let pkgs = import nixpkgs { system = "x86_64-linux"; }; in
-        pkgs.tree-sitter-grammars.tree-sitter-python;
+          devShells.default = pkgs.mkShell {
+            buildInputs = [ pkgs.jre pkgs.nodejs pkgs.yarn pkgs.sbt pkgs.binutils ];
+            nativeBuildInputs = [
+              pkgs.tree-sitter
+              ts-scala-shell
+              ts-python-shell
+              pkgs.clang
+            ];
+            shellHook = ''
+              export DYLD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ts-scala-shell ts-python-shell]}"
+            '';
+          };
+          packages.grammars = pkgs.linkFarm "grammars" [
+            {
+              name = "modules/language-scala/.jvm/src/main/resources";
+              path = pkgs.callPackage lib.make-grammar-resources {
+                package = system: self.packages.${system}.ts-scala;
+              };
+            }
+            {
+              name = "modules/language-python/.jvm/src/main/resources";
+              path = pkgs.callPackage lib.make-grammar-resources {
+                package = system: self.packages.${system}.ts-python;
+              };
+            }
+          ];
 
-      packages.aarch64-linux.ts =
-        let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
-        pkgs.tree-sitter;
-      packages.aarch64-linux.ts-scala =
-        let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
-        pkgs.tree-sitter-grammars.tree-sitter-scala;
-      packages.aarch64-linux.ts-python =
-        let pkgs = import nixpkgs { system = "aarch64-linux"; }; in
-        pkgs.tree-sitter-grammars.tree-sitter-python;
+          packages.ts-scala = ts-scala-generic { rename-dependencies = true; };
+          packages.ts-python = ts-python-generic { rename-dependencies = true; };
+        }) // {
+      lib = import ./lib.nix;
     };
 }
