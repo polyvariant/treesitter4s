@@ -58,42 +58,23 @@
             renameLib ${pkgs.libcxxabi} libc++abi.1 libtree-sitter-python
             renameLib ${pkgs.libcxx} libc++.1.0 libtree-sitter-python
           '';
-        }; in
+        };
+    in
     flake-utils.lib.eachDefaultSystem
       (system:
         let
           pkgs = import nixpkgs { inherit system; };
-          ts-scala = pkgs.stdenv.mkDerivation {
-            name = "tree-sitter-scala";
-            buildCommand =
-              if pkgs.stdenv.isDarwin then
-                ''
-                  mkdir -p $out/lib
-                  # short term solution
-                  cp ${pkgs.tree-sitter-grammars.tree-sitter-scala}/parser $out/lib/libtree-sitter-scala.dylib
-                  chmod +w $out/lib/libtree-sitter-scala.dylib
-                  install_name_tool -id libtree-sitter-scala.dylib $out/lib/libtree-sitter-scala.dylib
-                '' else
-                ''
-                  mkdir -p $out/lib
-                  cp ${pkgs.tree-sitter-grammars.tree-sitter-scala}/parser $out/lib/libtree-sitter-scala.so
-                '';
+          lib = import ./lib.nix;
+
+          ts-scala = pkgs.callPackage lib.rename-grammar {
+            pname = "tree-sitter-scala";
+            grammar = pkgs.tree-sitter-grammars.tree-sitter-scala;
+            rename-dependencies = false;
           };
-          ts-python = pkgs.stdenv.mkDerivation {
-            name = "tree-sitter-python";
-            buildCommand =
-              if pkgs.stdenv.isDarwin then
-                ''
-                  mkdir -p $out/lib
-                  # short term solution
-                  cp ${pkgs.tree-sitter-grammars.tree-sitter-python}/parser $out/lib/libtree-sitter-python.dylib
-                  chmod +w $out/lib/libtree-sitter-python.dylib
-                  install_name_tool -id libtree-sitter-python.dylib $out/lib/libtree-sitter-python.dylib
-                '' else
-                ''
-                  mkdir -p $out/lib
-                  cp ${pkgs.tree-sitter-grammars.tree-sitter-python}/parser $out/lib/libtree-sitter-python.so
-                '';
+          ts-python = pkgs.callPackage lib.rename-grammar {
+            pname = "tree-sitter-python";
+            grammar = pkgs.tree-sitter-grammars.tree-sitter-python;
+            rename-dependencies = false;
           };
         in
         {
