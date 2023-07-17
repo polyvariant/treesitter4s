@@ -64,7 +64,9 @@
         let pkgs = import nixpkgs { inherit system; };
         in
         {
-          devShells.default = pkgs.mkShell { packages = [ pkgs.nodejs pkgs.yarn pkgs.sbt pkgs.binutils ]; };
+          devShells.default = pkgs.mkShell {
+            packages = [ pkgs.nodejs pkgs.yarn pkgs.sbt pkgs.binutils pkgs.python3 ];
+          };
         }) // {
       packages.aarch64-darwin.binaries = mkDarwinBinaries "aarch64-darwin";
       packages.x86_64-darwin.binaries = mkDarwinBinaries "x86_64-darwin";
