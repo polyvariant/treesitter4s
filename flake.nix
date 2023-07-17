@@ -66,6 +66,7 @@
         {
           devShells.default = pkgs.mkShell {
             packages = [ pkgs.nodejs pkgs.yarn pkgs.sbt pkgs.binutils pkgs.python3 ];
+            shellHook = "yarn install --freze-lockfile";
           };
         }) // {
       packages.aarch64-darwin.binaries = mkDarwinBinaries "aarch64-darwin";
