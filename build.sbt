@@ -29,14 +29,18 @@ ThisBuild / tlFatalWarningsInCi := false
 
 val commonSettings = Seq(
   libraryDependencies ++= compilerPlugins ++ Seq(
-    "com.disneystreaming" %%% "weaver-cats" % "0.8.0" % Test,
-    "com.disneystreaming" %%% "weaver-discipline" % "0.8.0" % Test,
-    "com.disneystreaming" %%% "weaver-scalacheck" % "0.8.0" % Test,
+    "com.disneystreaming" %%% "weaver-cats" % "0.8.0" % Test
   ),
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
   scalacOptions ++= {
     if (scalaVersion.value.startsWith("3"))
       Seq("-Yscala-release", "3.1")
+    else
+      Nil
+  },
+  scalacOptions ++= {
+    if (scalaVersion.value.startsWith("2.13"))
+      Seq("-Wnonunit-statement")
     else
       Nil
   },
@@ -48,22 +52,22 @@ val commonJVMSettings = Seq(
   javacOptions ++= jvmTargetOptions,
   doc / javacOptions --= (jvmTargetOptions :+ "-Xlint:all"),
   Test / fork := true,
-  scalacOptions ++= {
-    if (scalaVersion.value.startsWith("2.13"))
-      Seq("-Wnonunit-statement")
-    else
-      Nil
-  },
 )
 
 val commonJSSettings = Seq(
   scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
 )
 
-lazy val core = crossProject(JVMPlatform, JSPlatform)
+lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/core"))
   .settings(
-    commonSettings
+    commonSettings,
+    // Skipping tests in this module to avoid dealing with Native's linking errors
+    // (the TS code isn't used in the tests so it doesn't see the glue - or something)
+    // This is also why there are tests in the binding modules.
+    // see https://github.com/scala-native/scala-native/issues/2778
+    Test / test := {},
   )
   .jvmSettings(
     commonJVMSettings,
@@ -73,8 +77,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   )
   .jsSettings(commonJSSettings)
 
-lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform)
+lazy val languageScala = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/language-scala"))
   .settings(
     name := "language-scala",
     commonSettings,
@@ -83,8 +88,9 @@ lazy val bindingsScala = crossProject(JVMPlatform, JSPlatform)
   .jvmSettings(commonJVMSettings)
   .jsSettings(commonJSSettings)
 
-lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform)
+lazy val languagePython = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/language-python"))
   .settings(
     name := "language-python",
     commonSettings,
@@ -93,18 +99,19 @@ lazy val bindingsPython = crossProject(JVMPlatform, JSPlatform)
   .jvmSettings(commonJVMSettings)
   .jsSettings(commonJSSettings)
 
-lazy val tests = crossProject(JVMPlatform, JSPlatform)
+lazy val tests = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
+  .in(file("modules/tests"))
   .settings(
     commonSettings
   )
-  .dependsOn(bindingsScala, bindingsPython)
+  .dependsOn(languageScala, languagePython)
   .jvmSettings(commonJVMSettings)
   .jsSettings(commonJSSettings)
   .enablePlugins(NoPublishPlugin)
 
 lazy val root = tlCrossRootProject
-  .aggregate(core, bindingsScala, bindingsPython, tests)
+  .aggregate(core, languageScala, languagePython, tests)
   .settings(
     Compile / doc / sources := Seq(),
     sonatypeProfileName := "org.polyvariant",

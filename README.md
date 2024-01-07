@@ -13,13 +13,10 @@ Feel free to try it if that's okay with you ;)
 
 ```scala
 libraryDependencies ++= Seq(
-  // Pure Scala interface - cross-compiled for JVM & JS platforms
+  // Base interface - cross-compiled for JVM & JS platforms.
+  // Use %%% instead of %% for JS/Native.
   "org.polyvariant.treesitter4s" %% "core" % version,
-  // Bindings for the JVM artifact. Brings in JNA and the native library.
-  // You probably want to use this one.
-  "org.polyvariant.treesitter4s" %% "bindings" % version,
   // Language support for a specific language.
-  // There's active work to split these out to separate artifacts.
   // "org.polyvariant.treesitter4s" %% "language-scala" % version,
   // "org.polyvariant.treesitter4s" %% "language-python" % version,
 )
@@ -34,6 +31,8 @@ libraryDependencies ++= Seq(
 
 ## Supported systems
 
+### JVM
+
 Support can vary, but the following platforms are considered supported:
 
 - macOS x86_64
@@ -43,3 +42,11 @@ Support can vary, but the following platforms are considered supported:
 
 CI runs on x86_64 macOS/Linux machines. Development is currently done on an aarch64 Mac.
 linux-aarch64 binaries are included thanks to the magic of [Nix](https://nixos.org/) and [Nixbuild](https://nixbuild.net/), but the library isn't being tested on that platform.
+
+### Native
+
+All platforms are supported as long as you provide the binaries. TODO
+
+### JS
+
+All platforms are supported as long as you provide the binaries.
