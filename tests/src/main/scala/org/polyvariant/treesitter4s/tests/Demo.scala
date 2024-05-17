@@ -16,15 +16,15 @@
 
 package org.polyvariant.treesitter4s.tests
 
-import org.polyvariant.treesitter4s.bindings.scala.ScalaLanguageBindings
+import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
 import org.polyvariant.treesitter4s.TreeSitter
 
 object Demo {
 
   def main(args: Array[String]): Unit = {
-    val ts = TreeSitter.make(ScalaLanguageBindings.Scala)
+    val ts = TreeSitter.make(PythonLanguageBindings.Python)
 
-    System.out.println(ts.parse("""class A""").rootNode.map(_.tpe))
+    System.out.println(ts.parse("""def main = print("hello world")""").rootNode.map(_.tpe))
   }
 
 }
