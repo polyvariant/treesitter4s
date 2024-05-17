@@ -87,17 +87,43 @@ def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = 
 }
 
 def compileBindingsPython(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
-  val output = (config / resourceManaged).value
+  val output = os.Path((config / resourceManaged).value)
 
-  val filename = System.mapLibraryName("tree-sitter-python")
-  val p = output / filename
-  println("writing python bindings")
-  IO.copy(
-    List(
-      file("/Users/kubukoz/projects/tree-sitter-python") / filename -> p
+  val version = "0.21.0"
+
+  val downloadTo = os.Path(IO.createTemporaryDirectory)
+
+  println(s"Downloading tree-sitter-python $version to $downloadTo")
+
+  import sys.process._
+
+  requests
+    .get(s"https://github.com/tree-sitter/tree-sitter-python/archive/v$version.tar.gz")
+    .readBytesThrough { bytes =>
+      val cmd = s"tar -xzf - --directory $downloadTo"
+
+      (cmd #< bytes).!!
+    }
+
+  val binaryName = System.mapLibraryName("tree-sitter-python")
+  val binaryPathCompiled = downloadTo / s"tree-sitter-python-$version" / binaryName
+
+  Process(
+    command = List("make", binaryName),
+    cwd = Some((downloadTo / s"tree-sitter-python-$version").toIO),
+  ).!!
+
+  val binaryPathGenerated = output / binaryName
+  println("writing tree-sitter-python file")
+
+  os.copy
+    .over(
+      binaryPathCompiled,
+      binaryPathGenerated,
+      createFolders = true,
     )
-  )
-  List(p)
+
+  List(binaryPathGenerated.toIO)
 }
 
 lazy val core = crossProject(JVMPlatform)
