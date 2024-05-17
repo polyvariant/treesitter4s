@@ -45,17 +45,17 @@
 
             # dependencies of grammars
             copyLib ${pkgs.libcxx} "libc++.1.0"
-            renameLib ${pkgs.libcxxabi} libc++abi.1 libc++.1.0
-            copyLib ${pkgs.libcxxabi} "libc++abi.1"
+            renameLib ${pkgs.libcxx} libc++abi.1 libc++.1.0
+            copyLib ${pkgs.libcxx} "libc++abi.1"
 
             # scala grammar
             copyGrammar ${pkgs.tree-sitter-grammars.tree-sitter-scala} libtree-sitter-scala
-            renameLib ${pkgs.libcxxabi} libc++abi.1 libtree-sitter-scala
+            renameLib ${pkgs.libcxx} libc++abi.1 libtree-sitter-scala
             renameLib ${pkgs.libcxx} libc++.1.0 libtree-sitter-scala
 
             # python grammar
             copyGrammar ${pkgs.tree-sitter-grammars.tree-sitter-python} libtree-sitter-python
-            renameLib ${pkgs.libcxxabi} libc++abi.1 libtree-sitter-python
+            renameLib ${pkgs.libcxx} libc++abi.1 libtree-sitter-python
             renameLib ${pkgs.libcxx} libc++.1.0 libtree-sitter-python
           '';
         }; in
