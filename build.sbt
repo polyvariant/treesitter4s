@@ -1,3 +1,5 @@
+import java.io.ByteArrayInputStream
+
 ThisBuild / tlBaseVersion := "0.3"
 ThisBuild / organization := "org.polyvariant.treesitter4s"
 ThisBuild / organizationName := "Polyvariant"
@@ -45,26 +47,54 @@ val commonJVMSettings = Seq(
 )
 
 def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
-  val output = (config / resourceManaged).value
+  val output = os.Path((config / resourceManaged).value)
 
-  val p = output / "libtree-sitter.dylib"
+  val version = "0.22.6"
+
+  val downloadTo = os.Path(IO.createTemporaryDirectory)
+
+  println(s"Downloading tree-sitter $version to $downloadTo")
+
+  import sys.process._
+
+  requests
+    .get(s"https://github.com/tree-sitter/tree-sitter/archive/v$version.tar.gz")
+    .readBytesThrough { bytes =>
+      val cmd = s"tar -xzf - --directory $downloadTo"
+
+      (cmd #< bytes).!!
+    }
+
+  val binaryName = System.mapLibraryName("tree-sitter")
+  val binaryPathCompiled = downloadTo / s"tree-sitter-$version" / binaryName
+
+  Process(
+    command = List("make", binaryName),
+    cwd = Some((downloadTo / s"tree-sitter-$version").toIO),
+  ).!!
+
+  val binaryPathGenerated = output / binaryName
   println("writing tree-sitter file")
-  IO.copy(
-    List(
-      file("/Users/kubukoz/projects/tree-sitter/libtree-sitter.dylib") -> p
+
+  os.copy
+    .over(
+      binaryPathCompiled,
+      binaryPathGenerated,
+      createFolders = true,
     )
-  )
-  List(p)
+
+  List(binaryPathGenerated.toIO)
 }
 
 def compileBindingsPython(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
   val output = (config / resourceManaged).value
 
-  val p = output / "libtree-sitter-python.dylib"
+  val filename = System.mapLibraryName("tree-sitter-python")
+  val p = output / filename
   println("writing python bindings")
   IO.copy(
     List(
-      file("/Users/kubukoz/projects/tree-sitter-python/libtree-sitter-python.dylib") -> p
+      file("/Users/kubukoz/projects/tree-sitter-python") / filename -> p
     )
   )
   List(p)
