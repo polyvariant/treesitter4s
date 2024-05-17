@@ -34,7 +34,7 @@ val commonSettings = Seq(
 )
 
 val commonJVMSettings = Seq(
-  doc / javacOptions -= "-Xlint:all",
+  Compile / doc / javacOptions -= "-Xlint:all",
   Test / fork := true,
   scalacOptions ++= {
     if (scalaVersion.value.startsWith("2.13"))
