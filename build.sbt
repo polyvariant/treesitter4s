@@ -23,8 +23,6 @@ val Scala3 = "3.3.3"
 ThisBuild / scalaVersion := Scala213
 ThisBuild / crossScalaVersions := Seq(Scala213, Scala3)
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
-
 ThisBuild / tlFatalWarnings := false
 
 val commonSettings = Seq(
