@@ -15,31 +15,22 @@ val compilerPlugins = List(
   crossPlugin("org.polyvariant" % "better-tostring" % "0.3.17")
 )
 
-val Scala212 = "2.12.17"
-val Scala213 = "2.13.10"
-val Scala3 = "3.2.0"
+val Scala213 = "2.13.14"
+val Scala3 = "3.3.3"
 
 ThisBuild / scalaVersion := Scala213
-ThisBuild / crossScalaVersions := Seq(Scala212, Scala213, Scala3)
+ThisBuild / crossScalaVersions := Seq(Scala213, Scala3)
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 ThisBuild / tlFatalWarnings := false
-ThisBuild / tlFatalWarningsInCi := false
 
 val commonSettings = Seq(
   libraryDependencies ++= compilerPlugins ++ Seq(
-    "com.disneystreaming" %%% "weaver-cats" % "0.8.0" % Test,
-    "com.disneystreaming" %%% "weaver-discipline" % "0.8.0" % Test,
-    "com.disneystreaming" %%% "weaver-scalacheck" % "0.8.0" % Test,
-  ),
-  testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-  scalacOptions ++= {
-    if (scalaVersion.value.startsWith("3"))
-      Seq("-Yscala-release", "3.1")
-    else
-      Nil
-  },
+    "com.disneystreaming" %%% "weaver-cats" % "0.8.4" % Test,
+    "com.disneystreaming" %%% "weaver-discipline" % "0.8.4" % Test,
+    "com.disneystreaming" %%% "weaver-scalacheck" % "0.8.4" % Test,
+  )
 )
 
 val jvmTargetOptions = Seq("-source", "8", "-target", "8")
@@ -68,7 +59,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   .jvmSettings(
     commonJVMSettings,
     libraryDependencies ++= Seq(
-      "net.java.dev.jna" % "jna" % "5.12.1"
+      "net.java.dev.jna" % "jna" % "5.14.0"
     ),
   )
   .jsSettings(commonJSSettings)
