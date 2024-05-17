@@ -39,48 +39,9 @@ public class Language extends PointerType {
 
 	public static <C extends Library> C loadLanguageLibrary(String lang, Class<C> clazz) {
 		try {
-			Language.copyLibFromResources("tree-sitter-" + lang, clazz.getClassLoader());
-			return Native.load(fullPath("tree-sitter-" + lang), clazz);
+			return Native.load("tree-sitter-" + lang, clazz);
 		} catch (UnsatisfiedLinkError e) {
-			e.printStackTrace();
 			throw new RuntimeException("Couldn't load library", e);
-		}
-	}
-
-	private static Path rootDirectory = makeRootDirectory();
-
-	static {
-		ClassLoader cl = Language.class.getClassLoader();
-
-		if (Platform.isMac()) {
-			copyLibFromResources("c++abi.1", cl);
-			copyLibFromResources("c++.1.0", cl);
-		}
-	}
-
-	// private utils don't look
-
-	private static String fullPath(String libName) {
-		return rootDirectory.resolve(System.mapLibraryName(libName)).toString();
-	}
-
-	private static Path makeRootDirectory() {
-		try {
-			return Files.createTempDirectory("treesitter4s");
-		} catch (IOException e) {
-			throw new RuntimeException("Couldn't make temp directory", e);
-		}
-	}
-
-	private static void copyLibFromResources(String name, ClassLoader classLoader) {
-		String platformName = System.mapLibraryName(name);
-
-		try (InputStream resStream = classLoader.getResourceAsStream(Platform.RESOURCE_PREFIX + "/" + platformName)) {
-			Path tf = rootDirectory.resolve(platformName);
-			Files.copy(resStream, tf);
-			tf.toFile().deleteOnExit();
-		} catch (IOException e) {
-			throw new RuntimeException("Couldn't copy library to temp directory", e);
 		}
 	}
 

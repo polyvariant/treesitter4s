@@ -46,6 +46,32 @@ val commonJVMSettings = Seq(
   },
 )
 
+def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
+  val output = (config / resourceManaged).value
+
+  val p = output / "libtree-sitter.dylib"
+  println("writing tree-sitter file")
+  IO.copy(
+    List(
+      file("/Users/kubukoz/projects/tree-sitter/libtree-sitter.dylib") -> p
+    )
+  )
+  List(p)
+}
+
+def compileBindingsPython(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
+  val output = (config / resourceManaged).value
+
+  val p = output / "libtree-sitter-python.dylib"
+  println("writing python bindings")
+  IO.copy(
+    List(
+      file("/Users/kubukoz/projects/tree-sitter-python/libtree-sitter-python.dylib") -> p
+    )
+  )
+  List(p)
+}
+
 lazy val core = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
@@ -56,22 +82,15 @@ lazy val core = crossProject(JVMPlatform)
     libraryDependencies ++= Seq(
       "net.java.dev.jna" % "jna" % "5.14.0"
     ),
+    Compile / resourceGenerators += compileTreeSitter(Compile).taskValue,
   )
-
-lazy val bindingsScala = crossProject(JVMPlatform)
-  .crossType(CrossType.Pure)
-  .settings(
-    name := "language-scala",
-    commonSettings,
-  )
-  .dependsOn(core)
-  .jvmSettings(commonJVMSettings)
 
 lazy val bindingsPython = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
     name := "language-python",
     commonSettings,
+    Compile / resourceGenerators += compileBindingsPython(Compile).taskValue,
   )
   .dependsOn(core)
   .jvmSettings(commonJVMSettings)
@@ -81,12 +100,12 @@ lazy val tests = crossProject(JVMPlatform)
   .settings(
     commonSettings
   )
-  .dependsOn(bindingsScala, bindingsPython)
+  .dependsOn(bindingsPython)
   .jvmSettings(commonJVMSettings)
   .enablePlugins(NoPublishPlugin)
 
 lazy val root = tlCrossRootProject
-  .aggregate(core, bindingsScala, bindingsPython, tests)
+  .aggregate(core, bindingsPython, tests)
   .settings(
     Compile / doc / sources := Seq(),
     sonatypeProfileName := "org.polyvariant",
