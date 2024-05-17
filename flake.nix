@@ -4,50 +4,67 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
 
     let
-      mkDarwinBinaries = system:
+      lib = self.lib;
+      mkCommons = system:
         let
-          pkgs = import nixpkgs { inherit system; }; in
+          pkgs = import nixpkgs { inherit system; };
+          suffix = pkgs.callPackage lib.lib-suffix { };
+          make-lib-name = name: version: if pkgs.stdenv.isDarwin then "${name}${version}${suffix}" else "${name}${suffix}${version}";
+        in
         pkgs.stdenv.mkDerivation {
-          name = "binaries";
-          buildCommand = ''
-            mkdir -p $out/lib
+          name = "commons";
 
-            function copyLib() {
-              # 1 - lib derivation path, 2 - target lib name
-              cp "$1/lib/$2.dylib" "$out/lib/$2.dylib"
-              chmod +w "$out/lib/$2.dylib"
-              install_name_tool -id $2.dylib $out/lib/$2.dylib
-            }
+          buildCommand =
+            if pkgs.stdenv.isDarwin then
+              ''
+                mkdir -p $out/lib
 
-            function renameLib() {
-              # 1 - library path, 2 - library name, 3 - what depends on this
-              install_name_tool -change $1/lib/$2.dylib @loader_path/$2.dylib $out/lib/$3.dylib
-            }
+                function copyLib() {
+                  # 1 - lib derivation path, 2 - target lib name
+                  cp "$1/lib/$2" "$out/lib/$2"
+                  chmod +w "$out/lib/$2"
+                  install_name_tool -id $2 $out/lib/$2
+                }
 
-            copyLib ${pkgs.tree-sitter} libtree-sitter.0.0
-            renameLib ${pkgs.libiconv} libiconv libtree-sitter.0.0
+                function renameLib() {
+                  # 1 - library path, 2 - library name, 3 - what depends on this
+                  install_name_tool -change $1/lib/$2 @loader_path/$2 $out/lib/$3
+                }
 
-            # dependency of libtree-sitter
-            copyLib ${pkgs.libiconv} libiconv
-            renameLib ${pkgs.libiconv} libiconv-nocharset libiconv
-            renameLib ${pkgs.libiconv} libcharset.1 libiconv
+                copyLib ${pkgs.tree-sitter} libtree-sitter.0.0.dylib
+                renameLib ${pkgs.libiconv} libiconv.dylib libtree-sitter.0.0.dylib
 
-            # dependenies of libiconv
-            copyLib ${pkgs.libiconv} "libiconv-nocharset"
-            copyLib ${pkgs.libiconv} "libcharset.1"
+                copyLib ${pkgs.libiconv} libiconv.dylib
+                renameLib ${pkgs.libiconv} libiconv-nocharset.dylib libiconv.dylib
+                renameLib ${pkgs.libiconv} libcharset.1.dylib libiconv.dylib
 
-            # dependencies of grammars
-            copyLib ${pkgs.libcxx} "libc++.1.0"
-            renameLib ${pkgs.libcxxabi} libc++abi.1 libc++.1.0
-            copyLib ${pkgs.libcxxabi} "libc++abi.1"
-          '';
+                copyLib ${pkgs.libiconv} libiconv-nocharset.dylib
+                copyLib ${pkgs.libiconv} libcharset.1.dylib
+
+                copyLib ${pkgs.libcxx} libc++.1.0.dylib
+                renameLib ${pkgs.libcxxabi} libc++abi.1.dylib libc++.1.0.dylib
+                copyLib ${pkgs.libcxxabi} libc++abi.1.dylib
+              '' else
+              ''
+                mkdir -p $out/lib
+
+                function copyLib() {
+                  # 1 - lib derivation path, 2 - target lib name
+                  cp "$1/lib/$2" "$out/lib/$2"
+                }
+
+                cp "${pkgs.tree-sitter}/lib/libtree-sitter.so.0.0" "$out/lib/libtree-sitter.so.0.0"
+                cp "${pkgs.glibc}/lib/libc.so.6" "$out/lib/libc.so.6"
+                cp "${pkgs.glibc}/lib/libgcc_s.so.1" "$out/lib/libgcc_s.so.1"
+                cp "${pkgs.glibc}/lib/libm.so.6" "$out/lib/libm.so.6"
+                cp "${pkgs.gcc-unwrapped.lib}/lib/libstdc++.so.6" "$out/lib/libstdc++.so.6"
+              '';
         };
     in
     flake-utils.lib.eachDefaultSystem
       (system:
         let
           pkgs = import nixpkgs { inherit system; };
-          lib = self.lib;
 
           ts-scala-generic = { rename-dependencies }: pkgs.callPackage lib.rename-grammar {
             pname = "tree-sitter-scala";
@@ -88,6 +105,12 @@
               name = "modules/language-python/.jvm/src/main/resources";
               path = pkgs.callPackage lib.make-grammar-resources {
                 package = system: self.packages.${system}.ts-python;
+              };
+            }
+            {
+              name = "modules/core/.jvm/src/main/resources";
+              path = pkgs.callPackage lib.make-grammar-resources {
+                package = mkCommons;
               };
             }
           ];

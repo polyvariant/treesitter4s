@@ -1,4 +1,5 @@
 let
+  lib-suffix = { stdenv, lib }: (lib.systems.elaborate stdenv.system).extensions.sharedLibrary;
   rename-grammar =
     { lib
     , stdenv
@@ -23,10 +24,9 @@ let
         )
         else "true";
       installPhase =
-        let suffix = (lib.systems.elaborate stdenv.system).extensions.sharedLibrary; in
         ''
           mkdir -p $out/lib
-          cp parser $out/lib/lib${pname}${suffix}
+          cp parser $out/lib/lib${pname}${lib-suffix { inherit stdenv lib; }}
         '';
     };
 
@@ -51,5 +51,5 @@ let
     );
 in
 
-{ inherit rename-grammar make-grammar-resources; }
+{ inherit lib-suffix rename-grammar make-grammar-resources; }
 
