@@ -48,84 +48,72 @@ val commonJVMSettings = Seq(
   },
 )
 
+// returns directory we built in
+def downloadAndBuild(name: String, version: String, repoUrl: String): os.Path = {
+  val binaryName = System.mapLibraryName(name)
+
+  val downloadTo = os.Path(IO.createTemporaryDirectory)
+
+  println(s"Downloading $name $version to $downloadTo")
+
+  import sys.process._
+
+  requests
+    .get(s"$repoUrl/archive/v$version.tar.gz")
+    .readBytesThrough { bytes =>
+      val cmd = s"tar -xzf - --directory $downloadTo"
+
+      (cmd #< bytes).!!
+    }
+
+  val extracted = downloadTo / s"$name-$version"
+
+  Process(
+    command = List("make", binaryName),
+    cwd = Some(extracted.toIO),
+  ).!!
+
+  extracted
+}
+
+def copyLibrary(name: String, from: os.Path, to: os.Path): os.Path = {
+  val binaryName = System.mapLibraryName(name)
+
+  val source = from / binaryName
+  val target = to / binaryName
+
+  os.copy
+    .over(
+      source,
+      target,
+      createFolders = true,
+    )
+
+  target
+}
+
 def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
   val output = os.Path((config / resourceManaged).value)
 
-  val version = "0.22.6"
+  val extracted = downloadAndBuild(
+    name = "tree-sitter",
+    version = "0.22.6",
+    repoUrl = "https://github.com/tree-sitter/tree-sitter",
+  )
 
-  val downloadTo = os.Path(IO.createTemporaryDirectory)
-
-  println(s"Downloading tree-sitter $version to $downloadTo")
-
-  import sys.process._
-
-  requests
-    .get(s"https://github.com/tree-sitter/tree-sitter/archive/v$version.tar.gz")
-    .readBytesThrough { bytes =>
-      val cmd = s"tar -xzf - --directory $downloadTo"
-
-      (cmd #< bytes).!!
-    }
-
-  val binaryName = System.mapLibraryName("tree-sitter")
-  val binaryPathCompiled = downloadTo / s"tree-sitter-$version" / binaryName
-
-  Process(
-    command = List("make", binaryName),
-    cwd = Some((downloadTo / s"tree-sitter-$version").toIO),
-  ).!!
-
-  val binaryPathGenerated = output / binaryName
-  println("writing tree-sitter file")
-
-  os.copy
-    .over(
-      binaryPathCompiled,
-      binaryPathGenerated,
-      createFolders = true,
-    )
-
-  List(binaryPathGenerated.toIO)
+  List(copyLibrary("tree-sitter", extracted, output).toIO)
 }
 
-def compileBindingsPython(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
+def compilePythonGrammar(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
   val output = os.Path((config / resourceManaged).value)
 
-  val version = "0.21.0"
+  val extracted = downloadAndBuild(
+    name = "tree-sitter-python",
+    version = "0.21.0",
+    repoUrl = "https://github.com/tree-sitter/tree-sitter-python",
+  )
 
-  val downloadTo = os.Path(IO.createTemporaryDirectory)
-
-  println(s"Downloading tree-sitter-python $version to $downloadTo")
-
-  import sys.process._
-
-  requests
-    .get(s"https://github.com/tree-sitter/tree-sitter-python/archive/v$version.tar.gz")
-    .readBytesThrough { bytes =>
-      val cmd = s"tar -xzf - --directory $downloadTo"
-
-      (cmd #< bytes).!!
-    }
-
-  val binaryName = System.mapLibraryName("tree-sitter-python")
-  val binaryPathCompiled = downloadTo / s"tree-sitter-python-$version" / binaryName
-
-  Process(
-    command = List("make", binaryName),
-    cwd = Some((downloadTo / s"tree-sitter-python-$version").toIO),
-  ).!!
-
-  val binaryPathGenerated = output / binaryName
-  println("writing tree-sitter-python file")
-
-  os.copy
-    .over(
-      binaryPathCompiled,
-      binaryPathGenerated,
-      createFolders = true,
-    )
-
-  List(binaryPathGenerated.toIO)
+  List(copyLibrary("tree-sitter-python", extracted, output).toIO)
 }
 
 lazy val core = crossProject(JVMPlatform)
@@ -146,7 +134,7 @@ lazy val bindingsPython = crossProject(JVMPlatform)
   .settings(
     name := "language-python",
     commonSettings,
-    Compile / resourceGenerators += compileBindingsPython(Compile).taskValue,
+    Compile / resourceGenerators += compilePythonGrammar(Compile).taskValue,
   )
   .dependsOn(core)
   .jvmSettings(commonJVMSettings)
