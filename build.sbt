@@ -25,6 +25,7 @@ val compilerPlugins = List(
   crossPlugin("org.polyvariant" % "better-tostring" % "0.3.17")
 )
 
+val Scala212 = "2.12.18"
 val Scala213 = "2.13.14"
 val Scala3 = "3.3.3"
 
@@ -51,126 +52,6 @@ val commonJVMSettings = Seq(
       Nil
   },
 )
-
-// returns directory we built in
-def downloadAndBuild(name: String, version: String, repoUrl: String): os.Path = {
-  val binaryName = System.mapLibraryName(name)
-
-  val downloadTo = os.Path(IO.createTemporaryDirectory)
-
-  println(s"Downloading $name $version to $downloadTo")
-
-  import sys.process._
-
-  requests
-    .get(s"$repoUrl/archive/v$version.tar.gz")
-    .readBytesThrough { bytes =>
-      val cmd = s"tar -xzf - --directory $downloadTo"
-
-      (cmd #< bytes).!!
-    }
-
-  val extracted = downloadTo / s"$name-$version"
-
-  Process(
-    command = List("make", binaryName),
-    cwd = Some(extracted.toIO),
-  ).!!
-
-  extracted
-}
-
-def simplyCached[Input: JsonFormat, Output: JsonFormat](
-  f: Input => Output
-)(
-  s: TaskStreams,
-  tag: String,
-): Input => Output = {
-  val factory = s.cacheStoreFactory.sub(tag)
-
-  Tracked.inputChanged[Input, Output](
-    factory.make("input")
-  ) {
-    Function.untupled {
-      Tracked.lastOutput[(Boolean, Input), Output](
-        factory.make("output")
-      ) { case ((changed, input), lastResult) =>
-        lastResult match {
-          case Some(cached) if !changed => cached
-          case _                        => f(input)
-        }
-      }
-    }
-  }
-}
-
-def downloadAndBuildTask(
-  config: Configuration,
-  name: String,
-  version: String,
-  repoUrl: String,
-): Def.Initialize[Task[os.Path]] = Def.task {
-
-  val s = (config / streams).value
-  type DownloadArgs = (String, String, String)
-
-  implicit val jsonFormatOsPath: JsonFormat[os.Path] = BasicJsonProtocol
-    .projectFormat[os.Path, File](_.toIO, os.Path(_))
-
-  val cached = Function.untupled(
-    simplyCached((downloadAndBuild _).tupled)(
-      s = s,
-      tag = name,
-    )
-  )
-
-  cached(name, version, repoUrl)
-
-}
-
-def copyLibrary(name: String, from: os.Path, to: os.Path): os.Path = {
-  val binaryName = System.mapLibraryName(name)
-
-  val source = from / binaryName
-  val target = to / binaryName
-
-  os.copy
-    .over(
-      source,
-      target,
-      createFolders = true,
-    )
-
-  target
-}
-
-def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
-  val output = os.Path((config / resourceManaged).value)
-
-  val extracted =
-    downloadAndBuildTask(
-      config = config,
-      name = "tree-sitter",
-      version = "0.22.6",
-      repoUrl = "https://github.com/tree-sitter/tree-sitter",
-    ).value
-
-  List(copyLibrary("tree-sitter", extracted, output).toIO)
-}
-
-def compilePythonGrammar(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
-  val output = os.Path((config / resourceManaged).value)
-
-  val extracted =
-    downloadAndBuildTask(
-      config = config,
-      name = "tree-sitter-python",
-      version = "0.21.0",
-      repoUrl = "https://github.com/tree-sitter/tree-sitter-python",
-    ).value
-
-  List(copyLibrary("tree-sitter-python", extracted, output).toIO)
-}
 
 lazy val core = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
@@ -209,8 +90,8 @@ lazy val tests = crossProject(JVMPlatform)
 val sbtPlugin = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
-    scalaVersion := "2.12.18",
-    crossScalaVersions := Seq("2.12.18"),
+    scalaVersion := Scala212,
+    crossScalaVersions := Seq(Scala212),
     name := "sbt-plugin",
   )
   .enablePlugins(SbtPlugin)
@@ -225,6 +106,10 @@ val sbtPlugin = crossProject(JVMPlatform)
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false,
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %% "requests" % "0.8.2",
+      "com.lihaoyi" %% "os-lib" % "0.10.0",
+    ),
   )
 
 lazy val root = tlCrossRootProject
