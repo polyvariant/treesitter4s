@@ -28,11 +28,16 @@ object TreeSitter4sPlugin extends AutoPlugin {
 
   object autoImport {
 
-    val ts4sCompileCore = settingKey[Boolean]("Whether to build the core tree-sitter library")
-    val ts4sGrammars = settingKey[Seq[TreeSitterGrammar]]("Grammars to compile binaries for")
+    val ts4sCompileCore = settingKey[Boolean](
+      "Whether to build the core tree-sitter library."
+    )
 
-    val ts4sBuildCore = taskKey[Seq[File]]("Build the core tree-sitter library")
-    val ts4sBuildGrammars = taskKey[Seq[File]]("Build the tree-sitter grammars")
+    val ts4sTreeSitterVersion = settingKey[String]("Version of tree-sitter to compile.")
+
+    val ts4sGrammars = settingKey[Seq[TreeSitterGrammar]]("Grammars to compile binaries for.")
+
+    val ts4sBuildCore = taskKey[Seq[File]]("Build the core tree-sitter library.")
+    val ts4sBuildGrammars = taskKey[Seq[File]]("Build the tree-sitter grammars.")
 
     case class TreeSitterGrammar(
       language: String,
@@ -103,9 +108,9 @@ object TreeSitter4sPlugin extends AutoPlugin {
 
     def downloadAndBuildTask(
       config: Configuration,
-      libraries: List[Library],
+      library: Library,
       tag: String,
-    ): Def.Initialize[Task[Seq[os.Path]]] = Def.task {
+    ): Def.Initialize[Task[os.Path]] = Def.task {
 
       val s = (config / streams).value
 
@@ -120,13 +125,13 @@ object TreeSitter4sPlugin extends AutoPlugin {
 
       val cached =
         simplyCached(
-          (_: List[Library]).map(downloadAndBuild)
+          downloadAndBuild
         )(
           s = s,
           tag = tag,
         )
 
-      cached(libraries)
+      cached(library)
 
     }
 
@@ -143,22 +148,27 @@ object TreeSitter4sPlugin extends AutoPlugin {
       target
     }
 
-    def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
+    def compileTreeSitter(
+      config: Configuration
+    ): Def.Initialize[Task[File]] = Def.taskDyn {
       val output = os.Path((config / resourceManaged).value)
+      val version = (config / ts4sTreeSitterVersion).value
 
-      val extracted =
-        downloadAndBuildTask(
-          config = config,
-          libraries =
-            Library(
+      Def.task {
+        val extracted =
+          downloadAndBuildTask(
+            config = config,
+            library = Library(
               name = "tree-sitter",
-              version = "0.22.6",
+              version = version,
               repoUrl = "https://github.com/tree-sitter/tree-sitter",
-            ) :: Nil,
-          tag = "tree-sitter",
-        ).value
+            ),
+            tag = "tree-sitter",
+          ).value
 
-      extracted.map(copyLibrary(_, output).toIO)
+        copyLibrary(extracted, output).toIO
+      }
+
     }
 
     def compileGrammars(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.taskDyn {
@@ -166,21 +176,25 @@ object TreeSitter4sPlugin extends AutoPlugin {
 
       val grammars = (config / ts4sGrammars).value.toList
 
-      Def.task {
-        val extracted =
-          downloadAndBuildTask(
-            config = config,
-            grammars.map { grammar =>
-              Library(
-                name = s"tree-sitter-${grammar.language}",
-                version = grammar.version,
-                repoUrl = s"https://github.com/tree-sitter/tree-sitter-${grammar.language}",
-              )
-            },
-            tag = "tree-sitter-libraries",
-          ).value
+      val tasks = grammars.map { grammar =>
+        downloadAndBuildTask(
+          config = config,
+          library = Library(
+            name = s"tree-sitter-${grammar.language}",
+            version = grammar.version,
+            repoUrl = s"https://github.com/tree-sitter/tree-sitter-${grammar.language}",
+          ),
+          tag = "tree-sitter-libraries",
+        )
+      }
 
-        extracted.map(copyLibrary(_, output).toIO)
+      // I guess this is sbt's way of doing a traverse.
+      // Can we just get an actual map/traverse?
+      Def.task {
+        tasks
+          .joinWith(_.join)
+          .value
+          .map(copyLibrary(_, output).toIO)
       }
     }
 
@@ -194,11 +208,12 @@ object TreeSitter4sPlugin extends AutoPlugin {
     // settings
     Compile / ts4sGrammars := Nil,
     Compile / ts4sCompileCore := false,
+    Compile / ts4sTreeSitterVersion := "0.22.6",
 
     // tasks
     Compile / ts4sBuildCore := {
       if ((Compile / ts4sCompileCore).value)
-        compileTreeSitter(Compile).value
+        compileTreeSitter(Compile).value :: Nil
       else
         Nil
     },

@@ -73,6 +73,8 @@ lazy val bindingsPython = crossProject(JVMPlatform)
     name := "language-python",
     commonSettings,
     Compile / ts4sGrammars += TreeSitterGrammar("python", "0.21.0"),
+    // example of another grammar in use
+    // Compile / ts4sGrammars += TreeSitterGrammar("rust", "0.21.2"),
   )
   .enablePlugins(TreeSitter4sPlugin)
   .dependsOn(core)
