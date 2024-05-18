@@ -64,7 +64,7 @@ lazy val core = crossProject(JVMPlatform)
     libraryDependencies ++= Seq(
       "net.java.dev.jna" % "jna" % "5.14.0"
     ),
-    Compile / resourceGenerators += compileTreeSitter(Compile).taskValue,
+    Compile / ts4sCompileCore := true,
   )
 
 lazy val bindingsPython = crossProject(JVMPlatform)
@@ -72,7 +72,7 @@ lazy val bindingsPython = crossProject(JVMPlatform)
   .settings(
     name := "language-python",
     commonSettings,
-    Compile / resourceGenerators += compilePythonGrammar(Compile).taskValue,
+    Compile / ts4sGrammars += TreeSitterGrammar("python", "0.21.0"),
   )
   .enablePlugins(TreeSitter4sPlugin)
   .dependsOn(core)

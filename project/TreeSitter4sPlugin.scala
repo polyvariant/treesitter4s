@@ -27,15 +27,29 @@ import sbt.util.CacheImplicits._
 object TreeSitter4sPlugin extends AutoPlugin {
 
   object autoImport {
-    val compileTreeSitter = internals.compileTreeSitter _
-    val compilePythonGrammar = internals.compilePythonGrammar _
+
+    val ts4sCompileCore = settingKey[Boolean]("Whether to build the core tree-sitter library")
+    val ts4sGrammars = settingKey[Seq[TreeSitterGrammar]]("Grammars to compile binaries for")
+
+    val ts4sBuildCore = taskKey[Seq[File]]("Build the core tree-sitter library")
+    val ts4sBuildGrammars = taskKey[Seq[File]]("Build the tree-sitter grammars")
+
+    case class TreeSitterGrammar(
+      language: String,
+      version: String,
+    )
+
   }
+
+  import autoImport._
 
   private object internals {
 
-    // returns directory we built in
-    def downloadAndBuild(name: String, version: String, repoUrl: String): os.Path = {
-      val binaryName = System.mapLibraryName(name)
+    // returns path to binary
+    def downloadAndBuild(lib: Library): os.Path = {
+      val name = lib.name
+      val version = lib.version
+      val binaryName = System.mapLibraryName(lib.name)
 
       val downloadTo = os.Path(IO.createTemporaryDirectory)
 
@@ -44,7 +58,7 @@ object TreeSitter4sPlugin extends AutoPlugin {
       import sys.process._
 
       requests
-        .get(s"$repoUrl/archive/v$version.tar.gz")
+        .get(s"${lib.repoUrl}/archive/v$version.tar.gz")
         .readBytesThrough { bytes =>
           val cmd = s"tar -xzf - --directory $downloadTo"
 
@@ -58,7 +72,7 @@ object TreeSitter4sPlugin extends AutoPlugin {
         cwd = Some(extracted.toIO),
       ).!!
 
-      extracted
+      extracted / binaryName
     }
 
     def simplyCached[Input: JsonFormat, Output: JsonFormat](
@@ -85,38 +99,43 @@ object TreeSitter4sPlugin extends AutoPlugin {
       }
     }
 
+    case class Library(name: String, version: String, repoUrl: String)
+
     def downloadAndBuildTask(
       config: Configuration,
-      name: String,
-      version: String,
-      repoUrl: String,
-    ): Def.Initialize[Task[os.Path]] = Def.task {
+      libraries: List[Library],
+      tag: String,
+    ): Def.Initialize[Task[Seq[os.Path]]] = Def.task {
 
       val s = (config / streams).value
 
       implicit val jsonFormatOsPath: JsonFormat[os.Path] = BasicJsonProtocol
         .projectFormat[os.Path, File](_.toIO, os.Path(_))
 
-      val cached = Function.untupled(
-        simplyCached((downloadAndBuild _).tupled)(
-          s = s,
-          tag = name,
+      implicit val jsonFormatLibrary = BasicJsonProtocol
+        .projectFormat[Library, (String, String, String)](
+          l => (l.name, l.version, l.repoUrl),
+          { case (name, version, repoUrl) => Library(name, version, repoUrl) },
         )
-      )
 
-      cached(name, version, repoUrl)
+      val cached =
+        simplyCached(
+          (_: List[Library]).map(downloadAndBuild)
+        )(
+          s = s,
+          tag = tag,
+        )
+
+      cached(libraries)
 
     }
 
-    def copyLibrary(name: String, from: os.Path, to: os.Path): os.Path = {
-      val binaryName = System.mapLibraryName(name)
-
-      val source = from / binaryName
-      val target = to / binaryName
+    def copyLibrary(from: os.Path, to: os.Path): os.Path = {
+      val target = to / from.last
 
       os.copy
         .over(
-          source,
+          from,
           target,
           createFolders = true,
         )
@@ -130,29 +149,64 @@ object TreeSitter4sPlugin extends AutoPlugin {
       val extracted =
         downloadAndBuildTask(
           config = config,
-          name = "tree-sitter",
-          version = "0.22.6",
-          repoUrl = "https://github.com/tree-sitter/tree-sitter",
+          libraries =
+            Library(
+              name = "tree-sitter",
+              version = "0.22.6",
+              repoUrl = "https://github.com/tree-sitter/tree-sitter",
+            ) :: Nil,
+          tag = "tree-sitter",
         ).value
 
-      List(copyLibrary("tree-sitter", extracted, output).toIO)
+      extracted.map(copyLibrary(_, output).toIO)
     }
 
-    def compilePythonGrammar(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
+    def compileGrammars(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.taskDyn {
       val output = os.Path((config / resourceManaged).value)
 
-      val extracted =
-        downloadAndBuildTask(
-          config = config,
-          name = "tree-sitter-python",
-          version = "0.21.0",
-          repoUrl = "https://github.com/tree-sitter/tree-sitter-python",
-        ).value
+      val grammars = (config / ts4sGrammars).value.toList
 
-      List(copyLibrary("tree-sitter-python", extracted, output).toIO)
+      Def.task {
+        val extracted =
+          downloadAndBuildTask(
+            config = config,
+            grammars.map { grammar =>
+              Library(
+                name = s"tree-sitter-${grammar.language}",
+                version = grammar.version,
+                repoUrl = s"https://github.com/tree-sitter/tree-sitter-${grammar.language}",
+              )
+            },
+            tag = "tree-sitter-libraries",
+          ).value
+
+        extracted.map(copyLibrary(_, output).toIO)
+      }
     }
 
   }
 
   override def trigger: PluginTrigger = noTrigger
+
+  import internals._
+
+  override def projectSettings: Seq[Setting[_]] = Seq(
+    // settings
+    Compile / ts4sGrammars := Nil,
+    Compile / ts4sCompileCore := false,
+
+    // tasks
+    Compile / ts4sBuildCore := {
+      if ((Compile / ts4sCompileCore).value)
+        compileTreeSitter(Compile).value
+      else
+        Nil
+    },
+    Compile / ts4sBuildGrammars := compileGrammars(Compile).value,
+
+    // generators
+    Compile / resourceGenerators += (Compile / ts4sBuildCore).taskValue,
+    Compile / resourceGenerators += (Compile / ts4sBuildGrammars).taskValue,
+  )
+
 }
