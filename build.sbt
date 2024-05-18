@@ -177,6 +177,7 @@ lazy val core = crossProject(JVMPlatform)
   .settings(
     commonSettings
   )
+  .enablePlugins(TreeSitter4sPlugin)
   .jvmSettings(
     commonJVMSettings,
     libraryDependencies ++= Seq(
@@ -192,6 +193,7 @@ lazy val bindingsPython = crossProject(JVMPlatform)
     commonSettings,
     Compile / resourceGenerators += compilePythonGrammar(Compile).taskValue,
   )
+  .enablePlugins(TreeSitter4sPlugin)
   .dependsOn(core)
   .jvmSettings(commonJVMSettings)
 
@@ -204,8 +206,29 @@ lazy val tests = crossProject(JVMPlatform)
   .jvmSettings(commonJVMSettings)
   .enablePlugins(NoPublishPlugin)
 
+val sbtPlugin = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .settings(
+    scalaVersion := "2.12.18",
+    crossScalaVersions := Seq("2.12.18"),
+    name := "sbt-plugin",
+  )
+  .enablePlugins(SbtPlugin)
+  .settings(
+    pluginCrossBuild / sbtVersion := {
+      scalaBinaryVersion.value match {
+        case "2.12" => "1.10.0"
+      }
+    },
+    scriptedLaunchOpts := {
+      scriptedLaunchOpts.value ++
+        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false,
+  )
+
 lazy val root = tlCrossRootProject
-  .aggregate(core, bindingsPython, tests)
+  .aggregate(core, bindingsPython, sbtPlugin, tests)
   .settings(
     Compile / doc / sources := Seq(),
     sonatypeProfileName := "org.polyvariant",
