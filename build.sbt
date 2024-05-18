@@ -83,14 +83,17 @@ def downloadAndBuild(name: String, version: String, repoUrl: String): os.Path = 
 def simplyCached[Input: JsonFormat, Output: JsonFormat](
   f: Input => Output
 )(
-  s: TaskStreams
-): Input => Output =
+  s: TaskStreams,
+  tag: String,
+): Input => Output = {
+  val factory = s.cacheStoreFactory.sub(tag)
+
   Tracked.inputChanged[Input, Output](
-    s.cacheStoreFactory.make("input")
+    factory.make("input")
   ) {
     Function.untupled {
       Tracked.lastOutput[(Boolean, Input), Output](
-        s.cacheStoreFactory.make("output")
+        factory.make("output")
       ) { case ((changed, input), lastResult) =>
         lastResult match {
           case Some(cached) if !changed => cached
@@ -99,6 +102,7 @@ def simplyCached[Input: JsonFormat, Output: JsonFormat](
       }
     }
   }
+}
 
 def downloadAndBuildTask(
   config: Configuration,
@@ -113,7 +117,12 @@ def downloadAndBuildTask(
   implicit val jsonFormatOsPath: JsonFormat[os.Path] = BasicJsonProtocol
     .projectFormat[os.Path, File](_.toIO, os.Path(_))
 
-  val cached = Function.untupled(simplyCached((downloadAndBuild _).tupled)(s))
+  val cached = Function.untupled(
+    simplyCached((downloadAndBuild _).tupled)(
+      s = s,
+      tag = name,
+    )
+  )
 
   cached(name, version, repoUrl)
 
