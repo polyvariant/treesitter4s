@@ -1,3 +1,7 @@
+import sjsonnew.BasicJsonProtocol
+
+import sjsonnew.JsonFormat
+
 import sbt.util.CacheImplicits._
 
 ThisBuild / tlBaseVersion := "0.3"
@@ -76,31 +80,44 @@ def downloadAndBuild(name: String, version: String, repoUrl: String): os.Path = 
   extracted
 }
 
-def downloadAndBuildTask(config: Configuration, name: String, version: String, repoUrl: String) =
-  Def.task {
-
-    val s = (config / streams).value
-    type DownloadArgs = (String, String, String)
-
-    val cached =
-      Tracked.inputChanged[DownloadArgs, File](
-        s.cacheStoreFactory.make("input")
-      ) {
-        Function.untupled {
-          Tracked.lastOutput[(Boolean, DownloadArgs), File](
-            s.cacheStoreFactory.make("output")
-          ) { case ((changed, input), lastResult) =>
-            lastResult match {
-              case Some(cached) if !changed => cached
-              case _                        => (downloadAndBuild _).tupled(input).toIO
-            }
-          }
+def simplyCached[Input: JsonFormat, Output: JsonFormat](
+  f: Input => Output
+)(
+  s: TaskStreams
+): Input => Output =
+  Tracked.inputChanged[Input, Output](
+    s.cacheStoreFactory.make("input")
+  ) {
+    Function.untupled {
+      Tracked.lastOutput[(Boolean, Input), Output](
+        s.cacheStoreFactory.make("output")
+      ) { case ((changed, input), lastResult) =>
+        lastResult match {
+          case Some(cached) if !changed => cached
+          case _                        => f(input)
         }
       }
-
-    cached((name, version, repoUrl))
-
+    }
   }
+
+def downloadAndBuildTask(
+  config: Configuration,
+  name: String,
+  version: String,
+  repoUrl: String,
+): Def.Initialize[Task[os.Path]] = Def.task {
+
+  val s = (config / streams).value
+  type DownloadArgs = (String, String, String)
+
+  implicit val jsonFormatOsPath: JsonFormat[os.Path] = BasicJsonProtocol
+    .projectFormat[os.Path, File](_.toIO, os.Path(_))
+
+  val cached = Function.untupled(simplyCached((downloadAndBuild _).tupled)(s))
+
+  cached(name, version, repoUrl)
+
+}
 
 def copyLibrary(name: String, from: os.Path, to: os.Path): os.Path = {
   val binaryName = System.mapLibraryName(name)
@@ -121,14 +138,13 @@ def copyLibrary(name: String, from: os.Path, to: os.Path): os.Path = {
 def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
   val output = os.Path((config / resourceManaged).value)
 
-  val extracted = os.Path(
+  val extracted =
     downloadAndBuildTask(
       config = config,
       name = "tree-sitter",
       version = "0.22.6",
       repoUrl = "https://github.com/tree-sitter/tree-sitter",
     ).value
-  )
 
   List(copyLibrary("tree-sitter", extracted, output).toIO)
 }
@@ -136,14 +152,13 @@ def compileTreeSitter(config: Configuration): Def.Initialize[Task[Seq[File]]] = 
 def compilePythonGrammar(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
   val output = os.Path((config / resourceManaged).value)
 
-  val extracted = os.Path {
+  val extracted =
     downloadAndBuildTask(
       config = config,
       name = "tree-sitter-python",
       version = "0.21.0",
       repoUrl = "https://github.com/tree-sitter/tree-sitter-python",
     ).value
-  }
 
   List(copyLibrary("tree-sitter-python", extracted, output).toIO)
 }
