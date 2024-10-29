@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s
+package org.polyvariant.treesitter4s.bindings.python.internal;
 
-import com.sun.jna.Native
-import org.polyvariant.treesitter4s.internal.Facade
-import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
+import com.sun.jna.Library;
+import com.sun.jna.NativeLibrary;
+import com.sun.jna.Native;
+import org.polyvariant.treesitter4s.Language;
 
-protected trait TreeSitterPlatform {
+public class PythonLanguageBindings {
 
-  private val LIBRARY: TreeSitterLibrary =
-    try Native
-        .load(
-          "tree-sitter",
-          classOf[TreeSitterLibrary],
-        )
-    catch {
-      case e: UnsatisfiedLinkError => throw new Exception("Couldn't load tree-sitter", e)
-    }
+	private static interface Bindings extends Library {
+		Language tree_sitter_python();
+	}
 
-  def make(language: Language): TreeSitter = Facade.make(language, LIBRARY)
+	private static final Bindings LIBRARY = Language.loadLanguageLibrary("python", Bindings.class);
+
+	public static final Language Python = LIBRARY.tree_sitter_python();
 
 }

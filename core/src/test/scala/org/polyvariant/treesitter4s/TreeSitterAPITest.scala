@@ -16,24 +16,18 @@
 
 package org.polyvariant.treesitter4s
 
-trait TreeSitter {
+import weaver.*
 
-  def parse(source: String): Tree
+object TreeSitterAPITest extends FunSuite {
+  test("Tree Sitter loads") {
+    try {
+      println(TreeSitterAPI)
+      success
+    } catch {
+      case e: ExceptionInInitializerError =>
+        e.printStackTrace()
+        failure("Couldn't load tree-sitter")
+    }
 
-}
-
-object TreeSitter extends TreeSitterPlatform
-
-trait Tree {
-  def rootNode: Option[Node]
-}
-
-trait Node {
-  def source: String
-  def text: String
-  def tpe: String
-  def children: List[Node]
-  def fields: Map[String, Node]
-  def startByte: Int
-  def endByte: Int
+  }
 }

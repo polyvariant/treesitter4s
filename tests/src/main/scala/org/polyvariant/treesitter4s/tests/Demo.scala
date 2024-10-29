@@ -16,13 +16,13 @@
 
 package org.polyvariant.treesitter4s.tests
 
-import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
-import org.polyvariant.treesitter4s.TreeSitter
+import org.polyvariant.treesitter4s.TreeSitterAPI
+import org.polyvariant.treesitter4s.bindings.python.PythonLanguage
 
 object Demo {
 
   def main(args: Array[String]): Unit = {
-    val ts = TreeSitter.make(PythonLanguageBindings.Python)
+    val ts = TreeSitterAPI.make(PythonLanguage)
 
     System.out.println(ts.parse("""def main = print("hello world")""").rootNode.map(_.tpe))
   }

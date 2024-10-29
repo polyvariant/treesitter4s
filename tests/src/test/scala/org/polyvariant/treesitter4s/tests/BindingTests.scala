@@ -19,11 +19,11 @@ package org.polyvariant.treesitter4s.tests
 import cats.implicits._
 import org.polyvariant.treesitter4s.Tree
 import weaver._
-import org.polyvariant.treesitter4s.TreeSitter
-import org.polyvariant.treesitter4s.bindings.python.PythonLanguageBindings
+import org.polyvariant.treesitter4s.TreeSitterAPI
+import org.polyvariant.treesitter4s.bindings.python.PythonLanguage
 
 object BindingTests extends FunSuite {
-  val tsPython = TreeSitter.make(PythonLanguageBindings.Python)
+  val tsPython = TreeSitterAPI.make(PythonLanguage)
 
   def parseExample(s: String): Tree = tsPython.parse(s)
 

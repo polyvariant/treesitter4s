@@ -16,18 +16,36 @@
 
 package org.polyvariant.treesitter4s
 
-import weaver.*
+import org.polyvariant.treesitter4s.lowlevel.TreeSitter
 
-object TreeSitterTest extends FunSuite {
-  test("Tree Sitter loads") {
-    try {
-      println(TreeSitter)
-      success
-    } catch {
-      case e: ExceptionInInitializerError =>
-        e.printStackTrace()
-        failure("Couldn't load tree-sitter")
-    }
+// High-level Tree Sitter API.
+// For the lower-level one, see TreeSitter in the lowlevel package.
+trait TreeSitterAPI {
 
+  def parse(source: String): Tree
+
+}
+
+object TreeSitterAPI {
+
+  def make(language: (ts: TreeSitter) => ts.Language): TreeSitterAPI = {
+    val ts = TreeSitter.instance
+
+    internal.Facade.make(ts, language(ts))
   }
+
+}
+
+trait Tree {
+  def rootNode: Option[Node]
+}
+
+trait Node {
+  def source: String
+  def text: String
+  def tpe: String
+  def children: List[Node]
+  def fields: Map[String, Node]
+  def startByte: Int
+  def endByte: Int
 }
