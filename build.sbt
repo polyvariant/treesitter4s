@@ -11,7 +11,11 @@ ThisBuild / startYear := Some(2022)
 ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(tlGitHubDev("kubukoz", "Jakub Kozłowski"))
 ThisBuild / sonatypeCredentialHost := Sonatype.sonatype01
-ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "macos-latest")
+ThisBuild / githubWorkflowOSes := Seq(
+  "ubuntu-latest", // x86
+  "macos-latest", // arm64
+  "macos-13", // x64
+)
 
 ThisBuild / tlJdkRelease := Some(11)
 
