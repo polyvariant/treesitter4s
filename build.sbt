@@ -18,6 +18,7 @@ ThisBuild / githubWorkflowOSes := Seq(
 )
 
 ThisBuild / tlJdkRelease := Some(11)
+ThisBuild / tlCiDependencyGraphJob := false
 
 ThisBuild / githubWorkflowBuild ~= (WorkflowStep.Run(commands = List("yarn")) +: _)
 
