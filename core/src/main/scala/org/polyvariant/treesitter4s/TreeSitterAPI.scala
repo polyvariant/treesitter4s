@@ -28,10 +28,11 @@ trait TreeSitterAPI {
 
 object TreeSitterAPI {
 
-  def make(language: (ts: TreeSitter) => ts.Language): TreeSitterAPI = {
+  def make(language: String): TreeSitterAPI = {
     val ts = TreeSitter.instance
+    val lang = ts.Language(language)
 
-    internal.Facade.make(ts, language(ts))
+    internal.Facade.make(ts, lang)
   }
 
 }

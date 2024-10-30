@@ -16,8 +16,8 @@
 
 package org.polyvariant.treesitter4s.lowlevel
 
-import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 import com.sun.jna.*
+import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 
 object TreeSitterPlatform {
 
@@ -41,11 +41,38 @@ object TreeSitterPlatform {
           val NullTree: Tree = null
         }
 
-      type Language = org.polyvariant.treesitter4s.Language
+      trait LanguageWrapper {
+        def lang: org.polyvariant.treesitter4s.Language
+      }
+
+      type Language = LanguageWrapper
 
       val Language: LanguageMethods =
         new {
-          def apply(language: org.polyvariant.treesitter4s.Language): Language = language
+
+          def apply(
+            languageName: String
+          ): Language = {
+            val library = NativeLibrary.getInstance(s"tree-sitter-$languageName")
+
+            val function = library.getFunction(s"tree_sitter_$languageName");
+
+            val langg = function
+              .invoke(classOf[org.polyvariant.treesitter4s.Language], Array())
+              .asInstanceOf[org.polyvariant.treesitter4s.Language]
+
+            new LanguageWrapper {
+              def lang: org.polyvariant.treesitter4s.Language = {
+                // but we need to keep a reference to the library for... reasons
+                // probably related to, but not quite the same, as:
+                // https://github.com/java-native-access/jna/pull/1378
+                // basically, segfaults.
+                library.hashCode()
+                langg
+              }
+            }
+          }
+
         }
 
       type Node = TreeSitterLibrary.Node
@@ -56,7 +83,7 @@ object TreeSitterPlatform {
       def tsParserSetLanguage(
         parser: Parser,
         language: Language,
-      ): Boolean = LIBRARY.ts_parser_set_language(parser, language)
+      ): Boolean = LIBRARY.ts_parser_set_language(parser, language.lang)
 
       def tsParserParseString(
         parser: Parser,
@@ -67,9 +94,9 @@ object TreeSitterPlatform {
 
       def tsLanguageSymbolCount(
         language: Language
-      ): Long = LIBRARY.ts_language_symbol_count(language)
+      ): Long = LIBRARY.ts_language_symbol_count(language.lang)
 
-      def tsLanguageVersion(language: Language): Long = LIBRARY.ts_language_version(language)
+      def tsLanguageVersion(language: Language): Long = LIBRARY.ts_language_version(language.lang)
 
       def tsNodeChild(node: Node, index: Long): Node = LIBRARY.ts_node_child(node, index)
 

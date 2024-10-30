@@ -20,12 +20,10 @@ import cats.implicits._
 import org.polyvariant.treesitter4s.Tree
 import weaver._
 import org.polyvariant.treesitter4s.TreeSitterAPI
-import org.polyvariant.treesitter4s.bindings.python.PythonLanguage
 
 object BindingTests extends FunSuite {
-  val tsPython = TreeSitterAPI.make(PythonLanguage)
-
-  def parseExample(s: String): Tree = tsPython.parse(s)
+  val ts = TreeSitterAPI.make("python")
+  def parseExample(s: String): Tree = ts.parse(s)
 
   test("root node child count") {
     val tree = parseExample("def main = print('Hello')\n")
@@ -41,13 +39,13 @@ object BindingTests extends FunSuite {
   //   assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
   // }
 
-  // test("root node child by index (in range)") {
-  //   val tree = parseExample("class Hello {}")
+  test("root node child by index (in range)") {
+    val tree = parseExample("class Hello {}")
 
-  //   val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-  //   assert.eql(rootNode.children.lift(0).isDefined, true)
-  // }
+    assert.eql(rootNode.children.lift(0).isDefined, true)
+  }
 
   // test("root node child by index (out of range)") {
   //   val tree = parseExample("class Hello {}")
