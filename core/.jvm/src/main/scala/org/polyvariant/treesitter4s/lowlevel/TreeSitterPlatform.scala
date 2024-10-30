@@ -20,6 +20,8 @@ import com.sun.jna.*
 import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 
 import java.util.concurrent.ConcurrentHashMap
+import scala.jdk.CollectionConverters.*
+import java.io.Closeable
 
 object TreeSitterPlatform {
 
@@ -33,7 +35,7 @@ object TreeSitterPlatform {
       case e: UnsatisfiedLinkError => throw new Exception("Couldn't load tree-sitter", e)
     }
 
-  val instance: TreeSitter =
+  def instance(): TreeSitter =
     new TreeSitter {
       type Parser = TreeSitterLibrary.Parser
       type Tree = TreeSitterLibrary.Tree
@@ -43,24 +45,42 @@ object TreeSitterPlatform {
           val NullTree: Tree = null
         }
 
-      type Language = org.polyvariant.treesitter4s.Language
+      trait CC extends Closeable {
+        def lang: org.polyvariant.treesitter4s.Language
+      }
 
-      private val languageMap = new ConcurrentHashMap[String, Language]
+      type Language = CC
+
+      /* private */
+      // val languages = new ConcurrentHashMap[String, (NativeLibrary, Language)]
+
+      // def close(): Unit = {
+      //   languages.values().asScala.foreach(_._1.close())
+      //   languages.clear()
+      // }
+      def close(): Unit = ()
 
       val Language: LanguageMethods =
         new {
 
           def apply(
             languageName: String
-          ): Language = languageMap.computeIfAbsent(
-            languageName,
-            _ => {
-              val library = NativeLibrary.getInstance("tree-sitter-python")
+          ): Language = {
+            val library = NativeLibrary.getInstance(s"tree-sitter-$languageName")
 
-              val function = library.getFunction("tree_sitter_python");
-              function.invoke(classOf[Language], Array()).asInstanceOf[Language]
-            },
-          )
+            val function = library.getFunction(s"tree_sitter_$languageName");
+
+            val langg = function
+              .invoke(classOf[org.polyvariant.treesitter4s.Language], Array())
+              .asInstanceOf[org.polyvariant.treesitter4s.Language]
+
+            // We need to keep all references to the libraries in a map
+            // otherwise they get GC'd and the app segfaults! Fun times.
+            new CC {
+              def lang: org.polyvariant.treesitter4s.Language = langg
+              def close() = library.close()
+            }
+          }
 
         }
 
@@ -72,7 +92,7 @@ object TreeSitterPlatform {
       def tsParserSetLanguage(
         parser: Parser,
         language: Language,
-      ): Boolean = LIBRARY.ts_parser_set_language(parser, language)
+      ): Boolean = LIBRARY.ts_parser_set_language(parser, language.lang)
 
       def tsParserParseString(
         parser: Parser,
@@ -83,9 +103,9 @@ object TreeSitterPlatform {
 
       def tsLanguageSymbolCount(
         language: Language
-      ): Long = LIBRARY.ts_language_symbol_count(language)
+      ): Long = LIBRARY.ts_language_symbol_count(language.lang)
 
-      def tsLanguageVersion(language: Language): Long = LIBRARY.ts_language_version(language)
+      def tsLanguageVersion(language: Language): Long = LIBRARY.ts_language_version(language.lang)
 
       def tsNodeChild(node: Node, index: Long): Node = LIBRARY.ts_node_child(node, index)
 

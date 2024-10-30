@@ -16,10 +16,10 @@
 
 package org.polyvariant.treesitter4s.internal
 
-import org.polyvariant.treesitter4s.lowlevel.TreeSitter
-import org.polyvariant.treesitter4s.TreeSitterAPI
-import org.polyvariant.treesitter4s.Tree
 import org.polyvariant.treesitter4s.Node
+import org.polyvariant.treesitter4s.Tree
+import org.polyvariant.treesitter4s.TreeSitterAPI
+import org.polyvariant.treesitter4s.lowlevel.TreeSitter
 
 private[treesitter4s] object Facade {
 

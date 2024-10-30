@@ -66,7 +66,7 @@ lazy val core = crossProject(JVMPlatform)
   .jvmSettings(
     commonJVMSettings,
     libraryDependencies ++= Seq(
-      "net.java.dev.jna" % "jna" % "5.14.0"
+      "net.java.dev.jna" % "jna" % "5.15.0"
     ),
   )
 

@@ -33,20 +33,20 @@ object BindingTests extends FunSuite {
     assert.eql(rootNode.map(_.children.length), Some(2))
   }
 
-  // test("root node child type") {
-  //   val tree = parseExample("class Hello {}")
-  //   val rootNode = tree.rootNode
+  test("root node child type") {
+    val tree = parseExample("class Hello {}")
+    val rootNode = tree.rootNode
 
-  //   assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
-  // }
+    assert.eql(rootNode.map(_.tpe), Some("compilation_unit"))
+  }
 
-  // test("root node child by index (in range)") {
-  //   val tree = parseExample("class Hello {}")
+  test("root node child by index (in range)") {
+    val tree = parseExample("class Hello {}")
 
-  //   val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
+    val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
-  //   assert.eql(rootNode.children.lift(0).isDefined, true)
-  // }
+    assert.eql(rootNode.children.lift(0).isDefined, true)
+  }
 
   // test("root node child by index (out of range)") {
   //   val tree = parseExample("class Hello {}")
