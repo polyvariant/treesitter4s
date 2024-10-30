@@ -62,14 +62,7 @@ object TreeSitterPlatform {
               .asInstanceOf[org.polyvariant.treesitter4s.Language]
 
             new LanguageWrapper {
-              def lang: org.polyvariant.treesitter4s.Language = {
-                // but we need to keep a reference to the library for... reasons
-                // probably related to, but not quite the same, as:
-                // https://github.com/java-native-access/jna/pull/1378
-                // basically, segfaults on aarch64-darwin.
-                library.hashCode()
-                langg
-              }
+              def lang: org.polyvariant.treesitter4s.Language = langg
             }
           }
 
