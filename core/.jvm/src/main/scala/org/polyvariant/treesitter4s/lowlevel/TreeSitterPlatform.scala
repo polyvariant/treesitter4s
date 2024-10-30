@@ -19,8 +19,6 @@ package org.polyvariant.treesitter4s.lowlevel
 import com.sun.jna.*
 import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 
-import java.io.Closeable
-
 object TreeSitterPlatform {
 
   private val LIBRARY: TreeSitterLibrary =
@@ -33,7 +31,7 @@ object TreeSitterPlatform {
       case e: UnsatisfiedLinkError => throw new Exception("Couldn't load tree-sitter", e)
     }
 
-  def instance(): TreeSitter =
+  val instance: TreeSitter =
     new TreeSitter {
       type Parser = TreeSitterLibrary.Parser
       type Tree = TreeSitterLibrary.Tree
@@ -43,11 +41,11 @@ object TreeSitterPlatform {
           val NullTree: Tree = null
         }
 
-      trait CC extends Closeable {
+      trait LanguageWrapper {
         def lang: org.polyvariant.treesitter4s.Language
       }
 
-      type Language = CC
+      type Language = LanguageWrapper
 
       val Language: LanguageMethods =
         new {
@@ -63,11 +61,14 @@ object TreeSitterPlatform {
               .invoke(classOf[org.polyvariant.treesitter4s.Language], Array())
               .asInstanceOf[org.polyvariant.treesitter4s.Language]
 
-            new CC {
-              def lang: org.polyvariant.treesitter4s.Language = langg
-              def close() = {
-                library.close()
-                sys.error("this actually doesn't get called lol")
+            new LanguageWrapper {
+              def lang: org.polyvariant.treesitter4s.Language = {
+                // but we need to keep a reference to the library for... reasons
+                // probably related to, but not quite the same, as:
+                // https://github.com/java-native-access/jna/pull/1378
+                // basically, segfaults on aarch64-darwin.
+                library.hashCode()
+                langg
               }
             }
           }

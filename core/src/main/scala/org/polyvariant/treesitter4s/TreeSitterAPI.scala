@@ -29,7 +29,7 @@ trait TreeSitterAPI {
 object TreeSitterAPI {
 
   def make(language: (ts: TreeSitter) => ts.Language): TreeSitterAPI = {
-    val ts = TreeSitter.instance()
+    val ts = TreeSitter.instance
     val lang = language(ts)
 
     internal.Facade.make(ts, lang)

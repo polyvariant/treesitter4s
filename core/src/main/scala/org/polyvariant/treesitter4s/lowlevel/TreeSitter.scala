@@ -16,8 +16,6 @@
 
 package org.polyvariant.treesitter4s.lowlevel
 
-import java.io.Closeable
-
 trait TreeSitter {
   type Parser
   type Tree
@@ -28,7 +26,7 @@ trait TreeSitter {
 
   val Tree: TreeMethods
 
-  type Language <: Closeable
+  type Language
 
   trait LanguageMethods {
     def apply(libraryName: String): Language
@@ -59,6 +57,5 @@ trait TreeSitter {
 }
 
 object TreeSitter {
-  // remember to close!
-  def instance(): TreeSitter = TreeSitterPlatform.instance()
+  val instance: TreeSitter = TreeSitterPlatform.instance
 }
