@@ -66,7 +66,7 @@ object TreeSitterPlatform {
                 // but we need to keep a reference to the library for... reasons
                 // probably related to, but not quite the same, as:
                 // https://github.com/java-native-access/jna/pull/1378
-                // basically, segfaults on aarch64-darwin.
+                // basically, segfaults.
                 library.hashCode()
                 langg
               }
