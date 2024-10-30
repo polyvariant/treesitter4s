@@ -67,7 +67,10 @@ object TreeSitterPlatform {
             // otherwise they get GC'd and the app segfaults! Fun times.
             new CC {
               def lang: org.polyvariant.treesitter4s.Language = langg
-              def close() = library.close()
+              def close() = {
+                library.close()
+                sys.error("this actually doesn't get called lol")
+              }
             }
           }
 
