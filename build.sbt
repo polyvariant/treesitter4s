@@ -66,7 +66,8 @@ lazy val core = crossProject(JVMPlatform)
   .jvmSettings(
     commonJVMSettings,
     libraryDependencies ++= Seq(
-      "net.java.dev.jna" % "jna" % "5.14.0"
+      "net.java.dev.jna" % "jna" % "5.14.0",
+      "org.javassist" % "javassist" % "3.28.0-GA",
     ),
   )
 
@@ -82,7 +83,12 @@ lazy val bindingsPython = crossProject(JVMPlatform)
 lazy val tests = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
-    commonSettings
+    commonSettings,
+    run / fork := true,
+    javaOptions ++= Seq(
+      "--add-opens",
+      "java.base/java.lang=ALL-UNNAMED",
+    ),
   )
   .dependsOn(bindingsPython)
   .jvmSettings(commonJVMSettings)

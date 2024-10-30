@@ -18,6 +18,11 @@ package org.polyvariant.treesitter4s.lowlevel
 
 import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 import com.sun.jna.*
+import javassist.ClassPool
+import javassist.CtMethod
+import util.chaining.*
+import javassist.CtClass
+import java.util.concurrent.ConcurrentHashMap
 
 object TreeSitterPlatform {
 
@@ -45,7 +50,34 @@ object TreeSitterPlatform {
 
       val Language: LanguageMethods =
         new {
-          def apply(language: org.polyvariant.treesitter4s.Language): Language = language
+          private val languageMap = new ConcurrentHashMap[String, Language]
+
+          def apply(languageName: String): Language = languageMap.computeIfAbsent(
+            languageName,
+            { _ =>
+
+              val methodName = s"tree_sitter_$languageName"
+
+              val bindingsInterface = {
+                val pool = ClassPool.getDefault
+                val interfaceName = s"Bindings_$languageName"
+                val returnType = pool.get("org.polyvariant.treesitter4s.Language")
+
+                pool
+                  .makeInterface(interfaceName)
+                  .tap(_.addInterface(pool.get(classOf[Library].getName)))
+                  .tap(owner =>
+                    owner.addMethod(new CtMethod(returnType, methodName, Array(), owner))
+                  )
+                  .toClass
+                  .asSubclass(classOf[Library])
+              }
+
+              val library = Native.load(s"tree-sitter-$languageName", bindingsInterface)
+              bindingsInterface.getMethod(methodName).invoke(library).asInstanceOf[Language]
+            },
+          )
+
         }
 
       type Node = TreeSitterLibrary.Node

@@ -29,7 +29,7 @@ trait TreeSitter {
   type Language
 
   trait LanguageMethods {
-    def apply(language: org.polyvariant.treesitter4s.Language): Language
+    def apply(libraryName: String): Language
   }
 
   val Language: LanguageMethods
