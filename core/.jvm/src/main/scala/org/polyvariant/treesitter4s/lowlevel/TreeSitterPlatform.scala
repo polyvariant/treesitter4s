@@ -16,12 +16,9 @@
 
 package org.polyvariant.treesitter4s.lowlevel
 
-import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 import com.sun.jna.*
-import javassist.ClassPool
-import javassist.CtMethod
-import util.chaining.*
-import javassist.CtClass
+import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
+
 import java.util.concurrent.ConcurrentHashMap
 
 object TreeSitterPlatform {
@@ -48,33 +45,20 @@ object TreeSitterPlatform {
 
       type Language = org.polyvariant.treesitter4s.Language
 
+      private val languageMap = new ConcurrentHashMap[String, Language]
+
       val Language: LanguageMethods =
         new {
-          private val languageMap = new ConcurrentHashMap[String, Language]
 
-          def apply(languageName: String): Language = languageMap.computeIfAbsent(
+          def apply(
+            languageName: String
+          ): Language = languageMap.computeIfAbsent(
             languageName,
-            { _ =>
+            _ => {
+              val library = NativeLibrary.getInstance("tree-sitter-python")
 
-              val methodName = s"tree_sitter_$languageName"
-
-              val bindingsInterface = {
-                val pool = ClassPool.getDefault
-                val interfaceName = s"Bindings_$languageName"
-                val returnType = pool.get("org.polyvariant.treesitter4s.Language")
-
-                pool
-                  .makeInterface(interfaceName)
-                  .tap(_.addInterface(pool.get(classOf[Library].getName)))
-                  .tap(owner =>
-                    owner.addMethod(new CtMethod(returnType, methodName, Array(), owner))
-                  )
-                  .toClass
-                  .asSubclass(classOf[Library])
-              }
-
-              val library = Native.load(s"tree-sitter-$languageName", bindingsInterface)
-              bindingsInterface.getMethod(methodName).invoke(library).asInstanceOf[Language]
+              val function = library.getFunction("tree_sitter_python");
+              function.invoke(classOf[Language], Array()).asInstanceOf[Language]
             },
           )
 
