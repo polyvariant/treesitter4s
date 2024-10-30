@@ -18,7 +18,7 @@ package org.polyvariant.treesitter4s.lowlevel
 
 import java.io.Closeable
 
-trait TreeSitter extends AutoCloseable {
+trait TreeSitter {
   type Parser
   type Tree
 

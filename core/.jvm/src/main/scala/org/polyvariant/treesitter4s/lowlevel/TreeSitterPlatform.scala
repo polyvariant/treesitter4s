@@ -19,8 +19,6 @@ package org.polyvariant.treesitter4s.lowlevel
 import com.sun.jna.*
 import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 
-import java.util.concurrent.ConcurrentHashMap
-import scala.jdk.CollectionConverters.*
 import java.io.Closeable
 
 object TreeSitterPlatform {
@@ -50,15 +48,6 @@ object TreeSitterPlatform {
       }
 
       type Language = CC
-
-      /* private */
-      // val languages = new ConcurrentHashMap[String, (NativeLibrary, Language)]
-
-      // def close(): Unit = {
-      //   languages.values().asScala.foreach(_._1.close())
-      //   languages.clear()
-      // }
-      def close(): Unit = ()
 
       val Language: LanguageMethods =
         new {

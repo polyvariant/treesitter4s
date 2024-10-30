@@ -18,8 +18,6 @@ package org.polyvariant.treesitter4s
 
 import org.polyvariant.treesitter4s.lowlevel.TreeSitter
 
-import scala.util.Using
-
 // High-level Tree Sitter API.
 // For the lower-level one, see TreeSitter in the lowlevel package.
 trait TreeSitterAPI {
@@ -30,15 +28,12 @@ trait TreeSitterAPI {
 
 object TreeSitterAPI {
 
-  // hm what's interesting is that the committed version segfaults on
-  // a different function (ts_node_string) and here we crash at ts_parser_set_language.
-  // strange things
-  def make(language: (ts: TreeSitter) => ts.Language): TreeSitterAPI =
-    Using.resource(TreeSitter.instance()) { ts =>
-      Using.resource(language(ts)) { lang =>
-        internal.Facade.make(ts, lang)
-      }
-    }
+  def make(language: (ts: TreeSitter) => ts.Language): TreeSitterAPI = {
+    val ts = TreeSitter.instance()
+    val lang = language(ts)
+
+    internal.Facade.make(ts, lang)
+  }
 
 }
 

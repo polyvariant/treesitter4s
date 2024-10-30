@@ -22,9 +22,8 @@ import weaver._
 import org.polyvariant.treesitter4s.TreeSitterAPI
 
 object BindingTests extends FunSuite {
-  val tsPython = TreeSitterAPI.make(_.Language("python"))
-
-  def parseExample(s: String): Tree = tsPython.parse(s)
+  val ts = TreeSitterAPI.make(_.Language("python"))
+  def parseExample(s: String): Tree = ts.parse(s)
 
   test("root node child count") {
     val tree = parseExample("def main = print('Hello')\n")
