@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s.internal;
+package org.polyvariant.treesitter4s.lowlevel;
 
 import com.sun.jna.*;
 import com.sun.jna.Structure.FieldOrder;
-import org.polyvariant.treesitter4s.Language;
 
-// todo: this could be a separate library (independent of Scala versions)
-public interface TreeSitterLibrary extends Library {
+interface TreeSitterLibrary extends Library {
 
 	// todo: extensible for languages
 	// long tree_sitter_scala();
@@ -52,6 +50,17 @@ public interface TreeSitterLibrary extends Library {
 			super(p);
 		}
 	}
+
+	public static class Language extends PointerType {
+		public Language() {
+			super();
+		}
+
+		public Language(Pointer p) {
+			super(p);
+		}
+	}
+
 
 	// static
 

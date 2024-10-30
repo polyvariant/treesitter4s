@@ -17,7 +17,6 @@
 package org.polyvariant.treesitter4s.lowlevel
 
 import com.sun.jna.*
-import org.polyvariant.treesitter4s.internal.TreeSitterLibrary
 
 object TreeSitterPlatform {
 
@@ -42,7 +41,7 @@ object TreeSitterPlatform {
         }
 
       trait LanguageWrapper {
-        def lang: org.polyvariant.treesitter4s.Language
+        def lang: TreeSitterLibrary.Language
       }
 
       type Language = LanguageWrapper
@@ -58,11 +57,11 @@ object TreeSitterPlatform {
             val function = library.getFunction(s"tree_sitter_$languageName");
 
             val langg = function
-              .invoke(classOf[org.polyvariant.treesitter4s.Language], Array())
-              .asInstanceOf[org.polyvariant.treesitter4s.Language]
+              .invoke(classOf[TreeSitterLibrary.Language], Array())
+              .asInstanceOf[TreeSitterLibrary.Language]
 
             new LanguageWrapper {
-              def lang: org.polyvariant.treesitter4s.Language = {
+              def lang: TreeSitterLibrary.Language = {
                 // but we need to keep a reference to the library for... reasons
                 // probably related to, but not quite the same, as:
                 // https://github.com/java-native-access/jna/pull/1378
