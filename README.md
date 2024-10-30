@@ -42,4 +42,4 @@ Support can vary, but the following platforms are considered supported:
 - Linux aarch64
 
 CI runs on x86_64 macOS/Linux machines. Development is currently done on an aarch64 Mac.
-linux-aarch64 binaries are included thanks to the magic of [Nix](https://nixos.org/) and [Nixbuild](https://nixbuild.net/), but the library isn't being tested on that platform.
+linux-aarch64 binaries are included thanks to the magic of [Nix](https://nixos.org/) and [Nixbuild](https://nixbuild.net/), but the library isn't being tested on that platform because GitHub doesn't offer runners for it yet ([there's hope](https://github.blog/news-insights/product-news/arm64-on-github-actions-powering-faster-more-efficient-build-systems/)).
