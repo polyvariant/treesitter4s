@@ -63,8 +63,6 @@ object TreeSitterPlatform {
               .invoke(classOf[org.polyvariant.treesitter4s.Language], Array())
               .asInstanceOf[org.polyvariant.treesitter4s.Language]
 
-            // We need to keep all references to the libraries in a map
-            // otherwise they get GC'd and the app segfaults! Fun times.
             new CC {
               def lang: org.polyvariant.treesitter4s.Language = langg
               def close() = {
