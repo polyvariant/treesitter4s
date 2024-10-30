@@ -21,7 +21,7 @@ import org.polyvariant.treesitter4s.TreeSitterAPI
 object Demo {
 
   def main(args: Array[String]): Unit = {
-    val ts = TreeSitterAPI.make(_.Language("python"))
+    val ts = TreeSitterAPI.make("python")
 
     System.out.println(ts.parse("""def main = print("hello world")""").rootNode.map(_.tpe))
   }
