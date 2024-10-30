@@ -84,6 +84,7 @@ lazy val tests = crossProject(JVMPlatform)
   .settings(
     commonSettings,
     run / fork := true,
+    // options for debugging JNA issues
     // Test / javaOptions ++= Seq(
     //   "-Djna.debug_load=true",
     //   "-Djna.debug_load.jna=true",
