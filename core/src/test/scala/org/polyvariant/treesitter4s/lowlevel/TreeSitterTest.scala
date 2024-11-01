@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.polyvariant.treesitter4s
+package org.polyvariant.treesitter4s.lowlevel
 
 import weaver.*
 
-object TreeSitterAPITest extends FunSuite {
+object TreeSitterTest extends FunSuite {
   test("Tree Sitter loads") {
     try {
-      println(TreeSitterAPI)
+      println(TreeSitter.instance)
       success
     } catch {
       case e: ExceptionInInitializerError =>
@@ -30,4 +30,5 @@ object TreeSitterAPITest extends FunSuite {
     }
 
   }
+
 }

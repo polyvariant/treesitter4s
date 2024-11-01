@@ -49,4 +49,22 @@ trait Node {
   def fields: Map[String, Node]
   def startByte: Int
   def endByte: Int
+
+  def visit[A](visitor: Node.Visitor[A]): A = visitor.onNode(this, this.children)
+
+  // A specialized form of visitor, where every node is provided already visited.
+  def fold[A](folder: Node.Folder[A]): A = folder.onNode(this, this.children.map(_.fold(folder)))
+
+}
+
+object Node {
+
+  trait Folder[A] {
+    def onNode(node: Node, children: List[A]): A
+  }
+
+  trait Visitor[A] {
+    def onNode(node: Node, children: List[Node]): A
+  }
+
 }

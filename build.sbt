@@ -51,10 +51,12 @@ val commonJVMSettings = Seq(
   Compile / doc / javacOptions -= "-Xlint:all",
   Test / fork := true,
   scalacOptions ++= {
-    if (scalaVersion.value.startsWith("2.13"))
-      Seq("-Wnonunit-statement")
-    else
-      Nil
+    Seq("-Wnonunit-statement") ++ {
+      if (scalaVersion.value.startsWith("3"))
+        Seq("-no-indent")
+      else
+        Nil
+    }
   },
 )
 

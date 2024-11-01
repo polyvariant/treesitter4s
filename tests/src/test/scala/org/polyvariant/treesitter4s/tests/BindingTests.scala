@@ -20,6 +20,7 @@ import cats.implicits._
 import org.polyvariant.treesitter4s.Tree
 import weaver._
 import org.polyvariant.treesitter4s.TreeSitterAPI
+import org.polyvariant.treesitter4s.Node
 
 object BindingTests extends FunSuite {
   val ts = TreeSitterAPI.make("python")
@@ -45,6 +46,31 @@ object BindingTests extends FunSuite {
     val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
 
     assert.eql(rootNode.children.lift(0).isDefined, true)
+  }
+
+  test("Node.fold") {
+    val rootNode = parseExample("""
+                                  |def foo():
+                                  | return 1
+                                  |
+                                  |def bar():
+                                  |  def baz():
+                                  |    return 2
+                                  |  return baz()
+                                  |""".stripMargin)
+      .rootNode
+      .getOrElse(sys.error("missing root node"))
+
+    val functions = rootNode.fold[List[Node]] { (node, children) =>
+      if (node.tpe == "function_definition")
+        node :: children.flatten
+      else
+        children.flatten
+    }
+
+    val functionNames = functions.map(_.fields("name").source)
+
+    assert.eql(functionNames, "foo" :: "bar" :: "baz" :: Nil)
   }
 
   // test("root node child by index (out of range)") {
