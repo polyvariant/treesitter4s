@@ -69,39 +69,46 @@ private[treesitter4s] object Facade {
       if (ts.tsNodeIsNull(node))
         None
       else
-        Some(fromNative.node(ts, node, sourceFile))
+        Some(fromNative.node(ts, node, sourceFile, () => None))
 
     def node(
       ts: TreeSitter,
       underlying: ts.Node,
       sourceFile: String,
+      getParent: () => Option[Node],
     ): Node = {
-      val startByte = Math.toIntExact(ts.tsNodeStartByte(underlying).longValue())
-      val endByte = Math.toIntExact(ts.tsNodeEndByte(underlying).longValue())
 
-      val children =
-        List.tabulate(Math.toIntExact(ts.tsNodeChildCount(underlying))) { i =>
-          fromNative
-            .node(ts, ts.tsNodeChild(underlying, i.toLong), sourceFile)
-        }
+      lazy val self: Node = {
 
-      val fields =
-        children
-          .indices
-          .flatMap { i =>
-            Option(ts.tsNodeFieldNameForChild(underlying, i.toLong))
-              .map(_ -> children(i))
+        val startByte = Math.toIntExact(ts.tsNodeStartByte(underlying).longValue())
+        val endByte = Math.toIntExact(ts.tsNodeEndByte(underlying).longValue())
+
+        val children =
+          List.tabulate(Math.toIntExact(ts.tsNodeChildCount(underlying))) { i =>
+            fromNative
+              .node(ts, ts.tsNodeChild(underlying, i.toLong), sourceFile, () => Some(self))
           }
-          .toMap
 
-      NodeImpl(
-        text = ts.tsNodeString(underlying),
-        children = children,
-        fields = fields,
-        tpe = ts.tsNodeType(underlying),
-        startByte = startByte,
-        endByte = endByte,
-      )(sourceFile = sourceFile)
+        val fields =
+          children
+            .indices
+            .flatMap { i =>
+              Option(ts.tsNodeFieldNameForChild(underlying, i.toLong))
+                .map(_ -> children(i))
+            }
+            .toMap
+
+        NodeImpl(
+          text = ts.tsNodeString(underlying),
+          children = children,
+          fields = fields,
+          tpe = ts.tsNodeType(underlying),
+          startByte = startByte,
+          endByte = endByte,
+        )(sourceFile = sourceFile, getParent = getParent)
+      }
+
+      self
     }
 
     def tree(
@@ -132,12 +139,15 @@ private[treesitter4s] case class NodeImpl(
   startByte: Int,
   endByte: Int,
 )(
-  private val sourceFile: String
+  private val sourceFile: String,
+  private val getParent: () => Option[Node],
 ) extends Node {
 
   def source: String =
     new String(
       sourceFile.slice(startByte, endByte)
     )
+
+  def parent: Option[Node] = getParent()
 
 }

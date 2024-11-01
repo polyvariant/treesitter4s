@@ -50,6 +50,12 @@ trait Node {
   def startByte: Int
   def endByte: Int
 
+  // empty if we're at the root
+  def parent: Option[Node]
+
+  // first is closest
+  def parents: List[Node] = List.unfold(parent)(_.map(p => ((p, p.parent))))
+
   def visit[A](visitor: Node.Visitor[A]): A = visitor.onNode(this, this.children)
 
   // A specialized form of visitor, where every node is provided already visited.

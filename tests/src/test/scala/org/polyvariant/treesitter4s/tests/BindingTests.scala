@@ -73,6 +73,65 @@ object BindingTests extends FunSuite {
     assert.eql(functionNames, "foo" :: "bar" :: "baz" :: Nil)
   }
 
+  test("Node.parent") {
+    val rootNode = parseExample("""
+                                  |def foo():
+                                  | return 1
+                                  |
+                                  |def bar():
+                                  |  def baz():
+                                  |    return 2
+                                  |  return baz()
+                                  |""".stripMargin)
+      .rootNode
+      .getOrElse(sys.error("missing root node"))
+
+    val childParent = rootNode.children.head.parent
+
+    assert.same(childParent, Some(rootNode))
+  }
+
+  test("Node.parents") {
+    val rootNode = parseExample("""
+                                  |def foo():
+                                  | return 1
+                                  |
+                                  |def bar():
+                                  |  def baz():
+                                  |    return 2
+                                  |  return baz()
+                                  |""".stripMargin)
+      .rootNode
+      .getOrElse(sys.error("missing root node"))
+
+    val number2 = rootNode
+      .fold[List[Node]](_ :: _.flatten)
+      .find(_.source == "2")
+      .getOrElse(sys.error("missing 2"))
+
+    val expectedParents = List(
+      "return_statement" -> none,
+      "block" -> none,
+      "function_definition" -> "baz".some,
+      "block" -> none,
+      "function_definition" -> "bar".some,
+      "module" -> none,
+    )
+
+    assert.eql(
+      expectedParents,
+      number2.parents.map(n => n.tpe -> n.fields.get("name").map(_.source)),
+    )
+  }
+
+  test("Node.parent is empty for root") {
+    val rootNode = parseExample("def foo(): pass")
+      .rootNode
+      .getOrElse(sys.error("missing root node"))
+
+    assert.same(rootNode.parent, None)
+  }
+
   // test("root node child by index (out of range)") {
   //   val tree = parseExample("class Hello {}")
   //   val rootNode = tree.rootNode.getOrElse(sys.error("missing root node"))
