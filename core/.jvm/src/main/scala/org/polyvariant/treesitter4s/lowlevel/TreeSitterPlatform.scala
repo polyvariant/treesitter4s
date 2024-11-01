@@ -17,6 +17,7 @@
 package org.polyvariant.treesitter4s.lowlevel
 
 import com.sun.jna.*
+import scala.annotation.nowarn
 
 object TreeSitterPlatform {
 
@@ -66,7 +67,7 @@ object TreeSitterPlatform {
                 // probably related to, but not quite the same, as:
                 // https://github.com/java-native-access/jna/pull/1378
                 // basically, segfaults.
-                library.hashCode()
+                library.hashCode(): @nowarn("msg=unused value")
                 langg
               }
             }
