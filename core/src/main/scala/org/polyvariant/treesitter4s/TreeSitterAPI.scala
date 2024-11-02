@@ -45,8 +45,8 @@ trait Node {
   def source: String
   def text: String
   def tpe: String
-  def children: List[Node]
-  def fields: Map[String, Node]
+  def children: IndexedSeq[Node]
+  def fields: Map[String, IndexedSeq[Node]]
   def startByte: Int
   def endByte: Int
 
@@ -66,11 +66,11 @@ trait Node {
 object Node {
 
   trait Folder[A] {
-    def onNode(node: Node, children: List[A]): A
+    def onNode(node: Node, children: IndexedSeq[A]): A
   }
 
   trait Visitor[A] {
-    def onNode(node: Node, children: List[Node]): A
+    def onNode(node: Node, children: IndexedSeq[Node]): A
   }
 
 }

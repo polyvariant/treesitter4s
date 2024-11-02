@@ -84,7 +84,7 @@ private[treesitter4s] object Facade {
         val endByte = Math.toIntExact(ts.tsNodeEndByte(underlying).longValue())
 
         val children =
-          List.tabulate(Math.toIntExact(ts.tsNodeChildCount(underlying))) { i =>
+          IndexedSeq.tabulate(Math.toIntExact(ts.tsNodeChildCount(underlying))) { i =>
             fromNative
               .node(ts, ts.tsNodeChild(underlying, i.toLong), sourceFile, () => Some(self))
           }
@@ -96,6 +96,9 @@ private[treesitter4s] object Facade {
               Option(ts.tsNodeFieldNameForChild(underlying, i.toLong))
                 .map(_ -> children(i))
             }
+            .groupBy(_._1)
+            .view
+            .mapValues(_.map(_._2))
             .toMap
 
         NodeImpl(
@@ -134,8 +137,8 @@ private[treesitter4s] case class TreeImpl(
 private[treesitter4s] case class NodeImpl(
   text: String,
   tpe: String,
-  children: List[Node],
-  fields: Map[String, Node],
+  children: IndexedSeq[Node],
+  fields: Map[String, IndexedSeq[Node]],
   startByte: Int,
   endByte: Int,
 )(

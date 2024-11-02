@@ -63,12 +63,12 @@ object BindingTests extends FunSuite {
 
     val functions = rootNode.fold[List[Node]] { (node, children) =>
       if (node.tpe == "function_definition")
-        node :: children.flatten
+        node :: children.toList.flatten
       else
-        children.flatten
+        children.toList.flatten
     }
 
-    val functionNames = functions.map(_.fields("name").source)
+    val functionNames = functions.map(_.fields("name").head.source)
 
     assert.eql(functionNames, "foo" :: "bar" :: "baz" :: Nil)
   }
@@ -105,7 +105,7 @@ object BindingTests extends FunSuite {
       .getOrElse(sys.error("missing root node"))
 
     val number2 = rootNode
-      .fold[List[Node]](_ :: _.flatten)
+      .fold[List[Node]](_ :: _.toList.flatten)
       .find(_.source == "2")
       .getOrElse(sys.error("missing 2"))
 
@@ -120,7 +120,7 @@ object BindingTests extends FunSuite {
 
     assert.eql(
       expectedParents,
-      number2.parents.map(n => n.tpe -> n.fields.get("name").map(_.source)),
+      number2.parents.map(n => n.tpe -> n.fields.get("name").map(_.head.source)),
     )
   }
 
