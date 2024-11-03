@@ -108,6 +108,10 @@ private[treesitter4s] object Facade {
           tpe = ts.tsNodeType(underlying),
           startByte = startByte,
           endByte = endByte,
+          isMissing = ts.tsNodeIsMissing(underlying),
+          isExtra = ts.tsNodeIsExtra(underlying),
+          hasError = ts.tsNodeHasError(underlying),
+          isError = ts.tsNodeIsError(underlying),
         )(sourceFile = sourceFile, getParent = getParent)
       }
 
@@ -141,6 +145,10 @@ private[treesitter4s] case class NodeImpl(
   fields: Map[String, IndexedSeq[Node]],
   startByte: Int,
   endByte: Int,
+  isMissing: Boolean,
+  isExtra: Boolean,
+  hasError: Boolean,
+  isError: Boolean,
 )(
   private val sourceFile: String,
   private val getParent: () => Option[Node],

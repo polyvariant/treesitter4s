@@ -109,6 +109,14 @@ object TreeSitterPlatform {
 
       def tsNodeIsNull(node: Node): Boolean = LIBRARY.ts_node_is_null(node)
 
+      def tsNodeIsMissing(node: Node): Boolean = LIBRARY.ts_node_is_missing(node)
+
+      def tsNodeIsExtra(node: Node): Boolean = LIBRARY.ts_node_is_extra(node)
+
+      def tsNodeHasError(node: Node): Boolean = LIBRARY.ts_node_has_error(node)
+
+      def tsNodeIsError(node: Node): Boolean = LIBRARY.ts_node_is_error(node)
+
       def tsNodeStartByte(node: Node): Long = LIBRARY.ts_node_start_byte(node)
 
       def tsNodeEndByte(node: Node): Long = LIBRARY.ts_node_end_byte(node)

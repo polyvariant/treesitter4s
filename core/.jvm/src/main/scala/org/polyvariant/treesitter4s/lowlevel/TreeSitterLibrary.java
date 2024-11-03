@@ -104,6 +104,14 @@ interface TreeSitterLibrary extends Library {
 
 	boolean ts_node_is_null(Node node);
 
+	boolean ts_node_is_missing(Node self);
+
+	boolean ts_node_is_extra(Node self);
+
+	boolean ts_node_has_error(Node self);
+
+	boolean ts_node_is_error(Node self);
+
 	String ts_node_string(Node node);
 
  	Node ts_node_parent(Node node);

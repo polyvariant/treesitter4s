@@ -53,6 +53,10 @@ trait TreeSitter {
   def tsNodeEndByte(node: Node): Long
   def tsNodeChild(node: Node, index: Long): Node
   def tsNodeIsNull(node: Node): Boolean
+  def tsNodeIsMissing(node: Node): Boolean
+  def tsNodeIsExtra(node: Node): Boolean
+  def tsNodeHasError(node: Node): Boolean
+  def tsNodeIsError(node: Node): Boolean
   def tsNodeString(node: Node): String
   def tsNodeParent(node: Node): Node
 }

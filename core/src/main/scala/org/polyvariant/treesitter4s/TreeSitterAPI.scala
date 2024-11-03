@@ -53,6 +53,11 @@ trait Node {
   // empty if we're at the root
   def parent: Option[Node]
 
+  def isMissing: Boolean
+  def isExtra: Boolean
+  def hasError: Boolean
+  def isError: Boolean
+
   // first is closest
   def parents: List[Node] = List.unfold(parent)(_.map(p => ((p, p.parent))))
 
