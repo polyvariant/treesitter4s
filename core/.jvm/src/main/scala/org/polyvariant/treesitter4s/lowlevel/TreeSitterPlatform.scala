@@ -121,6 +121,7 @@ object TreeSitterPlatform {
 
       def tsTreeRootNode(tree: Tree): Node = LIBRARY.ts_tree_root_node(tree)
 
+      def tsNodeParent(node: Node): Node = LIBRARY.ts_node_parent(node)
     }
 
 }

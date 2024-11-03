@@ -91,10 +91,10 @@ private[treesitter4s] object Facade {
 
         val fields =
           children
-            .indices
-            .flatMap { i =>
+            .zipWithIndex
+            .flatMap { (ch, i) =>
               Option(ts.tsNodeFieldNameForChild(underlying, i.toLong))
-                .map(_ -> children(i))
+                .map(_ -> ch)
             }
             .groupBy(_._1)
             .view

@@ -105,4 +105,8 @@ interface TreeSitterLibrary extends Library {
 	boolean ts_node_is_null(Node node);
 
 	String ts_node_string(Node node);
+
+ 	Node ts_node_parent(Node node);
+	// would be a nice addition
+	// TSNode ts_node_named_descendant_for_byte_range(TSNode self, uint32_t start, uint32_t end);
 }

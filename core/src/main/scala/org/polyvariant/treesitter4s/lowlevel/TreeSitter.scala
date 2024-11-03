@@ -54,6 +54,7 @@ trait TreeSitter {
   def tsNodeChild(node: Node, index: Long): Node
   def tsNodeIsNull(node: Node): Boolean
   def tsNodeString(node: Node): String
+  def tsNodeParent(node: Node): Node
 }
 
 object TreeSitter {
