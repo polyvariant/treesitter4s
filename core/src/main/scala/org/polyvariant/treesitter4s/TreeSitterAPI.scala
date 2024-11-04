@@ -60,6 +60,7 @@ trait Node {
 
   // first is closest
   def parents: List[Node] = List.unfold(parent)(_.map(p => ((p, p.parent))))
+  def selfAndParents: List[Node] = this :: parents
 
   def visit[A](visitor: Node.Visitor[A]): A = visitor.onNode(this, this.children)
 
