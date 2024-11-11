@@ -4,7 +4,7 @@ import sjsonnew.JsonFormat
 
 import sbt.util.CacheImplicits._
 
-ThisBuild / tlBaseVersion := "0.3"
+ThisBuild / tlBaseVersion := "0.4"
 ThisBuild / organization := "org.polyvariant.treesitter4s"
 ThisBuild / organizationName := "Polyvariant"
 ThisBuild / startYear := Some(2022)
