@@ -44,3 +44,10 @@ mkdir -p bindingsPython/.jvm/src/main/resources/linux-x86-64
 BINARY_PATH=$(nix build .#packages.x86_64-linux.tree-sitter-python --no-link --print-out-paths --print-build-logs)
 cp $BINARY_PATH bindingsPython/.jvm/src/main/resources/linux-x86-64/libtree-sitter-python.so
 chmod 755 bindingsPython/.jvm/src/main/resources/linux-x86-64/libtree-sitter-python.so
+
+# bindingsFunlang
+
+LIBS_PATH=$(nix build .#tree-sitter-funlang-all --no-link --print-out-paths --print-build-logs)
+mkdir -p modules/treesitter/src/main/resources
+cp -R "$LIBS_PATH"/* modules/treesitter/src/main/resources
+chmod -R 755 modules/treesitter/src/main/resources
