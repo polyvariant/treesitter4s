@@ -6,8 +6,9 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
       in {
-        devShells.default =
-          pkgs.mkShell { packages = [ pkgs.sbt pkgs.tree-sitter ]; };
+        devShells.default = pkgs.mkShell {
+          packages = [ pkgs.sbt pkgs.tree-sitter pkgs.nodejs ];
+        };
 
         packages.tree-sitter = pkgs.stdenv.mkDerivation {
           name = "tree-sitter";
