@@ -1,0 +1,36 @@
+{
+  "grammars": [
+    {
+      "name": "funlang",
+      "camelcase": "Funlang",
+      "scope": "source.funlang",
+      "file-types": [
+        ".fl"
+      ],
+      "injection-regex": "^funlang$"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Funlang grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Jakub Kozłowski",
+        "email": "kubukoz@gmail.com",
+        "url": "https://github.com/kubukoz"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/polyvariant/treesitter4s"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}
